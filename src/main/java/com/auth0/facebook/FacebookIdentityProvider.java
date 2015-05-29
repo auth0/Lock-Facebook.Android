@@ -25,53 +25,62 @@
 package com.auth0.facebook;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
 import com.auth0.core.Application;
+import com.auth0.core.Strategies;
 import com.auth0.identity.IdentityProvider;
 import com.auth0.identity.IdentityProviderCallback;
 import com.auth0.identity.IdentityProviderRequest;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
 import com.facebook.FacebookOperationCanceledException;
-import com.facebook.Session;
-import com.facebook.SessionState;
+import com.facebook.FacebookSdk;
+import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
+
+import java.util.Collections;
 
 public class FacebookIdentityProvider implements IdentityProvider {
+    private static final String TAG = FacebookIdentityProvider.class.getName();
 
-    private IdentityProviderCallback callback;
+    private CallbackManager callbackManager;
+
+    public FacebookIdentityProvider(Context context) {
+        FacebookSdk.sdkInitialize(context.getApplicationContext());
+    }
 
     @Override
-    public void setCallback(IdentityProviderCallback callback) {
-        this.callback = callback;
+    public void setCallback(final IdentityProviderCallback callback) {
+        this.callbackManager = CallbackManager.Factory.create();
+        LoginManager.getInstance().registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                Log.v(TAG, "Logged in with permissions" + loginResult.getRecentlyGrantedPermissions());
+                callback.onSuccess(Strategies.Facebook.getName(), loginResult.getAccessToken().getToken());
+            }
+
+            @Override
+            public void onCancel() {
+                callback.onFailure(R.string.com_auth0_social_error_title, R.string.com_auth0_facebook_cancelled_error_message, null);
+            }
+
+            @Override
+            public void onError(FacebookException e) {
+                Log.e(FacebookIdentityProvider.class.getName(), "Failed to authenticate with FB", e);
+                int messageResource = e instanceof FacebookOperationCanceledException ? R.string.com_auth0_facebook_cancelled_error_message : R.string.com_auth0_social_access_denied_message;
+                callback.onFailure(R.string.com_auth0_facebook_error_title, messageResource, e);
+
+            }
+        });
     }
 
     @Override
     public void start(Activity activity, IdentityProviderRequest event, Application application) {
-        Session.openActiveSession(activity, true, new Session.StatusCallback() {
-            @Override
-            public void call(Session session, SessionState sessionState, Exception e) {
-                Log.v(FacebookIdentityProvider.class.getName(), "Login FB callback with state " + sessionState + " and session " + session);
-                if (e != null) {
-                    Log.e(FacebookIdentityProvider.class.getName(), "Failed to authenticate with FB", e);
-                    int messageResource = e instanceof FacebookOperationCanceledException ? R.string.com_auth0_facebook_cancelled_error_message : R.string.com_auth0_social_access_denied_message;
-                    callback.onFailure(R.string.com_auth0_facebook_error_title, messageResource, e);
-                } else {
-                    switch (sessionState) {
-                        case OPENED:
-                        case OPENED_TOKEN_UPDATED:
-                            callback.onSuccess("facebook", session.getAccessToken());
-                            break;
-                        case CLOSED_LOGIN_FAILED:
-                            callback.onFailure(R.string.com_auth0_social_error_title, R.string.com_auth0_social_error_message, null);
-                            if (session != null) {
-                                session.closeAndClearTokenInformation();
-                            }
-                            break;
-                    }
-                }
-            }
-
-        });
+        LoginManager.getInstance().logInWithReadPermissions(activity, Collections.singletonList("public_profile"));
     }
 
     @Override
@@ -79,15 +88,11 @@ public class FacebookIdentityProvider implements IdentityProvider {
 
     @Override
     public boolean authorize(Activity activity, int requestCode, int resultCode, Intent data) {
-        final Session session = Session.getActiveSession();
-        return session != null && session.onActivityResult(activity, requestCode, resultCode, data);
+        return callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
     public void clearSession() {
-        final Session session = Session.getActiveSession();
-        if (session != null) {
-            session.closeAndClearTokenInformation();
-        }
+        LoginManager.getInstance().logOut();
     }
 }
