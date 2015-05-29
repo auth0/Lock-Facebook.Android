@@ -1,22 +1,20 @@
 buildscript {
     repositories {
         jcenter()
-        mavenCentral()
-
     }
+
     dependencies {
         classpath 'com.android.tools.build:gradle:1.2.3'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.1'
+        classpath 'com.github.dcendents:android-maven-plugin:1.2'
     }
 }
 
-allprojects {
-    version = VERSION_NAME
-    group = GROUP
+version = VERSION_NAME
+group = GROUP
 
-    repositories {
-        mavenLocal()
-        jcenter()
-    }
+repositories {
+    jcenter()
 }
 
 ext.libraries = [
@@ -42,10 +40,6 @@ ext.compile = [
         maxSdk: 22,
         buildToolsVersion: "21.1.2"
 ]
-
-def isReleaseBuild() {
-    return version.contains("SNAPSHOT") == false
-}
 
 apply plugin: 'com.android.library'
 
@@ -73,4 +67,111 @@ dependencies {
     compile 'com.facebook.android:facebook-android-sdk:3.23.1'
 }
 
-apply from: './maven_push.gradle'
+apply plugin: 'com.github.dcendents.android-maven'
+
+install {
+    repositories.mavenInstaller {
+        pom {
+            project {
+                packaging POM_PACKAGING
+
+                name POM_NAME
+                description POM_DESCRIPTION
+                url POM_URL
+
+                licenses {
+                    license {
+                        name POM_LICENCE_NAME
+                        url POM_LICENCE_URL
+                        distribution POM_LICENCE_DIST
+                    }
+                }
+                developers {
+                    developer {
+                        id 'hzalaz'
+                        name 'Hernan Zalazar'
+                        email 'hernan@auth0.com'
+                    }
+                    developer {
+                        id 'mgonto'
+                        name 'Martin Gontovnikas'
+                        email 'gonto@auth0.com'
+                    }
+                }
+                scm {
+                    connection POM_SCM_CONNECTION
+                    developerConnection POM_SCM_DEV_CONNECTION
+                    url POM_URL
+
+                }
+            }
+        }
+    }
+}
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    exclude '**/BuildConfig.java'
+    exclude '**/R.java'
+    failOnError false
+}
+
+afterEvaluate {
+    javadoc.classpath += project.android.libraryVariants.toList().first().javaCompile.classpath
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+
+ext.bintrayProps = loadProperties('local.properties')
+
+if (ext.bintrayProps) {
+    apply plugin: 'com.jfrog.bintray'
+    bintray {
+        user = bintrayProps.getProperty("bintray.user")
+        key = bintrayProps.getProperty("bintray.apikey")
+        configurations = ['archives']
+        pkg {
+            repo = 'lock-android'
+            name = POM_ARTIFACT_ID
+            desc = POM_DESCRIPTION
+            websiteUrl = POM_URL
+            vcsUrl = POM_SCM_CONNECTION
+            licenses = ["MIT"]
+            userOrg = 'auth0'
+            publish = false
+            version {
+                gpg {
+                    sign = true
+                    passphrase = bintrayProps.getProperty("bintray.gpg.password")
+                }
+                vcsTag = VERSION_NAME
+                name = VERSION_NAME
+                released = new Date()
+            }
+        }
+    }    
+}
+
+def loadProperties(fileName) {
+    try {
+        def props = new Properties()
+        props.load(project.rootProject.file(fileName).newDataInputStream())
+        return props
+    } catch(all) { 
+        return null
+    }
+}
