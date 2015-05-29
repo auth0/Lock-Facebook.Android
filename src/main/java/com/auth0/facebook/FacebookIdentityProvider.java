@@ -42,6 +42,7 @@ import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 
+import java.util.Collection;
 import java.util.Collections;
 
 public class FacebookIdentityProvider implements IdentityProvider {
@@ -49,8 +50,16 @@ public class FacebookIdentityProvider implements IdentityProvider {
 
     private CallbackManager callbackManager;
 
+    private Collection<String> permissions;
+
     public FacebookIdentityProvider(Context context) {
         FacebookSdk.sdkInitialize(context.getApplicationContext());
+        this.permissions = Collections.singletonList("public_profile");
+    }
+
+    public FacebookIdentityProvider(Context context, Collection<String> permissions) {
+        this(context);
+        this.permissions = permissions != null && !permissions.isEmpty() ? permissions : Collections.singletonList("public_profile");
     }
 
     @Override
@@ -80,7 +89,7 @@ public class FacebookIdentityProvider implements IdentityProvider {
 
     @Override
     public void start(Activity activity, IdentityProviderRequest event, Application application) {
-        LoginManager.getInstance().logInWithReadPermissions(activity, Collections.singletonList("public_profile"));
+        LoginManager.getInstance().logInWithReadPermissions(activity, permissions);
     }
 
     @Override
