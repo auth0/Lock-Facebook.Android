@@ -1,5 +1,17 @@
 # Change Log
 
+## [2.0.0](https://github.com/auth0/Lock-Facebook.Android/tree/2.0.0) (2015-05-29)
+
+[Full Changelog](https://github.com/auth0/Lock-Facebook.Android/compare/1.0.7...2.0.0)
+
+**Implemented enhancements:**
+
+- Use FB SDK 4.x [\#1](https://github.com/auth0/Lock-Facebook.Android/issues/1)
+
+**Merged pull requests:**
+
+- Update Facebook IdP handler [\#2](https://github.com/auth0/Lock-Facebook.Android/pull/2) ([hzalaz](https://github.com/hzalaz))
+
 ## [1.0.7](https://github.com/auth0/Lock-Facebook.Android/tree/1.0.7) (2015-05-27)
 
 
