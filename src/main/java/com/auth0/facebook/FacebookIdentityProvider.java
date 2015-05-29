@@ -88,7 +88,7 @@ public class FacebookIdentityProvider implements IdentityProvider {
 
     @Override
     public boolean authorize(Activity activity, int requestCode, int resultCode, Intent data) {
-        return callbackManager.onActivityResult(requestCode, resultCode, data);
+        return IdentityProvider.WEBVIEW_AUTH_REQUEST_CODE == requestCode || callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
