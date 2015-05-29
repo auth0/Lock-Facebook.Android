@@ -18,7 +18,7 @@ Android 4.0 or later.
 The Lock-Facebook is available through [Maven Central](http://search.maven.org) and [JCenter](https://bintray.com/bintray/jcenter). To install it, simply add the following line to your `build.gradle`:
 
 ```gradle
-compile 'com.auth0.android:lock-facebook:1.7.+'
+compile 'com.auth0.android:lock-facebook:2.0.+'
 ```
 
 Then in your project's `AndroidManifest.xml` add the following entries:
