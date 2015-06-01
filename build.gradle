@@ -144,6 +144,8 @@ if (ext.bintrayProps) {
         user = bintrayProps.getProperty("bintray.user")
         key = bintrayProps.getProperty("bintray.apikey")
         configurations = ['archives']
+        dryRun = version.endsWith("-SNAPSHOT")
+        publish = false
         pkg {
             repo = 'lock-android'
             name = POM_ARTIFACT_ID
