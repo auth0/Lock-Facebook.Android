@@ -24,7 +24,10 @@ compile 'com.auth0.android:lock-facebook:2.0.+'
 Then in your project's `AndroidManifest.xml` add the following entries:
 
 ```xml
-<activity android:name="com.facebook.LoginActivity"/>
+<activity android:name="com.facebook.FacebookActivity"
+          android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+          android:theme="@android:style/Theme.Translucent.NoTitleBar"
+          android:label="@string/app_name" />
 <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
 ```
 
