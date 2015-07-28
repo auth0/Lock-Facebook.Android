@@ -88,8 +88,13 @@ public class FacebookIdentityProvider implements IdentityProvider {
     }
 
     @Override
-    public void start(Activity activity, IdentityProviderRequest event, Application application) {
+    public void start(Activity activity, String serviceName) {
         LoginManager.getInstance().logInWithReadPermissions(activity, permissions);
+    }
+
+    @Override
+    public void start(Activity activity, IdentityProviderRequest event, Application application) {
+        start(activity, Strategies.Facebook.getName());
     }
 
     @Override
