@@ -1,5 +1,13 @@
 # Change Log
 
+## [2.1.0](https://github.com/auth0/Lock-Facebook.Android/tree/2.1.0) (2015-07-28)
+
+[Full Changelog](https://github.com/auth0/Lock-Facebook.Android/compare/2.0.0...2.1.0)
+
+**Merged pull requests:**
+
+- Update com.auth0.android:core dep [\#3](https://github.com/auth0/Lock-Facebook.Android/pull/3) ([hzalaz](https://github.com/hzalaz))
+
 ## [2.0.0](https://github.com/auth0/Lock-Facebook.Android/tree/2.0.0) (2015-05-29)
 
 [Full Changelog](https://github.com/auth0/Lock-Facebook.Android/compare/1.0.7...2.0.0)
