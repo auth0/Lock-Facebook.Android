@@ -8,7 +8,7 @@ android:
   - extra-android-m2repository
   - addon-google_apis-google-23
 script:
-  - "./gradlew clean check --continue"
+  - "./gradlew clean test --continue"
 branches:
   only:
   - master
