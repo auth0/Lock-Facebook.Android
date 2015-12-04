@@ -1,1 +1,1 @@
-rootProject.name = POM_ARTIFACT_ID
+include ':lock-facebook', ':app'
