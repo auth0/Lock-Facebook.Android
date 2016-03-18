@@ -82,7 +82,6 @@ public class FacebookIdentityProvider implements IdentityProvider {
                 Log.e(FacebookIdentityProvider.class.getName(), "Failed to authenticate with FB", e);
                 int messageResource = e instanceof FacebookOperationCanceledException ? R.string.com_auth0_facebook_cancelled_error_message : R.string.com_auth0_social_access_denied_message;
                 callback.onFailure(R.string.com_auth0_facebook_error_title, messageResource, e);
-
             }
         });
     }
