@@ -20,7 +20,7 @@ allprojects {
 }
 
 ext.libraries = [
-        lock_identity_core: 'com.auth0.android:identity-core:1.12.0',
+        lock_identity_core: 'com.auth0.android:identity-core:1.14.0',
         facebook_sdk: 'com.facebook.android:facebook-android-sdk:4.6.0',
         app_compat: 'com.android.support:appcompat-v7:23.1.1',
         testing: [
