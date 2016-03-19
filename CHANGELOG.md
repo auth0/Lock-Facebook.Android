@@ -1,5 +1,14 @@
 # Change Log
 
+## [Unreleased](https://github.com/auth0/Lock-Facebook.Android/tree/HEAD)
+
+[Full Changelog](https://github.com/auth0/Lock-Facebook.Android/compare/2.3.0...HEAD)
+
+**Merged pull requests:**
+
+- Updated license and readme [\#8](https://github.com/auth0/Lock-Facebook.Android/pull/8) ([Annyv2](https://github.com/Annyv2))
+- Add sample/test app [\#7](https://github.com/auth0/Lock-Facebook.Android/pull/7) ([nikolaseu](https://github.com/nikolaseu))
+
 ## [2.3.0](https://github.com/auth0/Lock-Facebook.Android/tree/2.3.0) (2015-11-13)
 [Full Changelog](https://github.com/auth0/Lock-Facebook.Android/compare/2.2.0...2.3.0)
 
