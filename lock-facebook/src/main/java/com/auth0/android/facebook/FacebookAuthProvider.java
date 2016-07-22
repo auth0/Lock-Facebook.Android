@@ -11,11 +11,8 @@ import com.auth0.android.authentication.AuthenticationException;
 import com.auth0.android.callback.AuthenticationCallback;
 import com.auth0.android.provider.AuthProvider;
 import com.auth0.android.result.Credentials;
-import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
-import com.facebook.FacebookSdk;
-import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 
 import java.util.Collection;
@@ -29,8 +26,8 @@ public class FacebookAuthProvider extends AuthProvider {
     private static final String TAG = FacebookAuthProvider.class.getSimpleName();
     private final AuthenticationAPIClient auth0Client;
 
-    private CallbackManager callbackManager;
     private Collection<String> permissions;
+    private FacebookApiHelper apiHelper;
 
     /**
      * @param client an Auth0 AuthenticationAPIClient instance
@@ -52,32 +49,13 @@ public class FacebookAuthProvider extends AuthProvider {
 
     @Override
     protected void requestAuth(Activity activity, int requestCode) {
-        FacebookSdk.sdkInitialize(activity);
-        callbackManager = CallbackManager.Factory.create();
-        LoginManager.getInstance().registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-                requestAuth0Token(loginResult.getAccessToken().getToken());
-            }
-
-            @Override
-            public void onCancel() {
-                Log.e(TAG, "User cancelled the log in dialog");
-                callback.onFailure(R.string.com_auth0_facebook_authentication_failed_title, R.string.com_auth0_facebook_authentication_cancelled_error_message, null);
-            }
-
-            @Override
-            public void onError(FacebookException error) {
-                Log.e(TAG, "Error on log in: " + error.getMessage());
-                callback.onFailure(R.string.com_auth0_facebook_authentication_failed_title, R.string.com_auth0_facebook_authentication_failed_message, error);
-            }
-        });
-        LoginManager.getInstance().logInWithReadPermissions(activity, permissions);
+        apiHelper = createApiHelper(activity);
+        apiHelper.login(activity, permissions);
     }
 
     @Override
     public boolean authorize(int requestCode, int resultCode, @Nullable Intent intent) {
-        return callbackManager.onActivityResult(requestCode, resultCode, intent);
+        return apiHelper.finishLogin(requestCode, resultCode, intent);
     }
 
     @Override
@@ -100,9 +78,40 @@ public class FacebookAuthProvider extends AuthProvider {
     @Override
     public void clearSession() {
         super.clearSession();
-        LoginManager.getInstance().logOut();
+        if (apiHelper != null) {
+            apiHelper.logout();
+            apiHelper = null;
+        }
     }
 
+    Collection<String> getPermissions() {
+        return permissions;
+    }
+
+    FacebookApiHelper createApiHelper(Activity activity) {
+        return new FacebookApiHelper(activity, createFacebookCallback());
+    }
+
+    FacebookCallback<LoginResult> createFacebookCallback() {
+        return new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                requestAuth0Token(loginResult.getAccessToken().getToken());
+            }
+
+            @Override
+            public void onCancel() {
+                Log.e(TAG, "User cancelled the log in dialog");
+                callback.onFailure(R.string.com_auth0_facebook_authentication_failed_title, R.string.com_auth0_facebook_authentication_cancelled_error_message, null);
+            }
+
+            @Override
+            public void onError(FacebookException error) {
+                Log.e(TAG, "Error on log in: " + error.getMessage());
+                callback.onFailure(R.string.com_auth0_facebook_authentication_failed_title, R.string.com_auth0_facebook_authentication_failed_message, error);
+            }
+        };
+    }
 
     private void requestAuth0Token(String token) {
         auth0Client.loginWithOAuthAccessToken(token, "facebook")
