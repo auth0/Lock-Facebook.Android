@@ -112,12 +112,17 @@ public class FacebookAuthProvider extends AuthProvider {
         return new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                requestAuth0Token(loginResult.getAccessToken().getToken());
+                if (loginResult.getRecentlyDeniedPermissions().isEmpty()) {
+                    requestAuth0Token(loginResult.getAccessToken().getToken());
+                } else {
+                    Log.w(TAG, "Some permissions were not granted: " + loginResult.getRecentlyDeniedPermissions().toString());
+                    callback.onFailure(R.string.com_auth0_facebook_authentication_failed_title, R.string.com_auth0_facebook_authentication_failed_missing_permissions_message, null);
+                }
             }
 
             @Override
             public void onCancel() {
-                Log.e(TAG, "User cancelled the log in dialog");
+                Log.w(TAG, "User cancelled the log in dialog");
                 callback.onFailure(R.string.com_auth0_facebook_authentication_failed_title, R.string.com_auth0_facebook_authentication_cancelled_error_message, null);
             }
 
