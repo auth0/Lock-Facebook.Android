@@ -27,6 +27,7 @@ public class FacebookAuthProvider extends AuthProvider {
     private final AuthenticationAPIClient auth0Client;
 
     private Collection<String> permissions;
+    private String connectionName;
     private FacebookApiHelper apiHelper;
 
     /**
@@ -35,6 +36,7 @@ public class FacebookAuthProvider extends AuthProvider {
     public FacebookAuthProvider(@NonNull AuthenticationAPIClient client) {
         this.auth0Client = client;
         this.permissions = Collections.singleton("public_profile");
+        this.connectionName = "facebook";
     }
 
     /**
@@ -45,6 +47,15 @@ public class FacebookAuthProvider extends AuthProvider {
      */
     public void setPermissions(@NonNull Collection<String> permissions) {
         this.permissions = permissions;
+    }
+
+    /**
+     * Change the default connection to use when requesting the token to Auth0 server. By default this value is "facebook".
+     *
+     * @param connection that will be used to authenticate the user against Auth0.
+     */
+    public void setConnection(@NonNull String connection) {
+        this.connectionName = connection;
     }
 
     @Override
@@ -84,8 +95,13 @@ public class FacebookAuthProvider extends AuthProvider {
         }
     }
 
+
     Collection<String> getPermissions() {
         return permissions;
+    }
+
+    String getConnection() {
+        return connectionName;
     }
 
     FacebookApiHelper createApiHelper(Activity activity) {
@@ -114,7 +130,7 @@ public class FacebookAuthProvider extends AuthProvider {
     }
 
     private void requestAuth0Token(String token) {
-        auth0Client.loginWithOAuthAccessToken(token, "facebook")
+        auth0Client.loginWithOAuthAccessToken(token, connectionName)
                 .start(new AuthenticationCallback<Credentials>() {
                     @Override
                     public void onSuccess(Credentials credentials) {

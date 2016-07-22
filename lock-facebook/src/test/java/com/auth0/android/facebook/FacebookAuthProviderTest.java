@@ -37,7 +37,7 @@ public class FacebookAuthProviderTest {
 
     private static final int AUTH_REQ_CODE = 123;
     private static final int PERMISSION_REQ_CODE = 122;
-    public static final String CONNECTION_NAME = "facebook";
+    private static final String CONNECTION_NAME = "facebook";
     private static final String TOKEN = "a.raNDom.TokeN";
 
     @Mock
@@ -76,6 +76,23 @@ public class FacebookAuthProviderTest {
     public void shouldHaveDefaultPermissions() throws Exception {
         assertThat(provider.getPermissions(), is(hasSize(1)));
         assertThat(provider.getPermissions(), hasItem("public_profile"));
+    }
+
+    @Test
+    public void shouldSetConnectionName() throws Exception {
+        provider.setConnection("my-custom-connection");
+
+        assertThat(provider.getConnection(), is("my-custom-connection"));
+    }
+
+    @Test
+    public void shouldHaveNonNullConnectionName() throws Exception {
+        assertThat(provider.getConnection(), is(notNullValue()));
+    }
+
+    @Test
+    public void shouldHaveDefaultConnectionName() throws Exception {
+        assertThat(provider.getConnection(), is(CONNECTION_NAME));
     }
 
     @Test
@@ -127,6 +144,17 @@ public class FacebookAuthProviderTest {
         provider.facebookCallback.onSuccess(createLoginResultFromToken(TOKEN));
 
         Mockito.verify(client).loginWithOAuthAccessToken(TOKEN, CONNECTION_NAME);
+    }
+
+    @Test
+    public void shouldCallAuth0OAuthEndpointWithCustomConnectionNameWhenGoogleTokenIsReceived() {
+        provider.setConnection("my-custom-connection");
+        provider.start(activity, callback, PERMISSION_REQ_CODE, AUTH_REQ_CODE);
+        final AuthenticationRequest request = Mockito.mock(AuthenticationRequest.class);
+        Mockito.when(client.loginWithOAuthAccessToken(TOKEN, "my-custom-connection")).thenReturn(request);
+        provider.facebookCallback.onSuccess(createLoginResultFromToken(TOKEN));
+
+        Mockito.verify(client).loginWithOAuthAccessToken(TOKEN, "my-custom-connection");
     }
 
     @Test
