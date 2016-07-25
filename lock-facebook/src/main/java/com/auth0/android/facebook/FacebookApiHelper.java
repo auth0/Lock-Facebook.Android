@@ -7,14 +7,15 @@ import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
 
 import java.util.Collection;
 
-public class FacebookApiHelper {
+class FacebookApiHelper {
 
     private CallbackManager callbackManager;
 
-    public FacebookApiHelper(Activity activity, FacebookCallback facebookCallback) {
+    public FacebookApiHelper(Activity activity, FacebookCallback<LoginResult> facebookCallback) {
         FacebookSdk.sdkInitialize(activity);
         callbackManager = CallbackManager.Factory.create();
         LoginManager.getInstance().registerCallback(callbackManager, facebookCallback);
