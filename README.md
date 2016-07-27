@@ -74,6 +74,8 @@ Lock lock = builder.withProviderResolver(authHandler);
 
 That's it! When **Lock** needs to authenticate using that connection name, it will ask the `AuthProviderResolver` for a valid `AuthProvider`.
 
+> We provide this demo in the `PhotosActivity` class. We also use the Facebook SDK to get the User Albums and show them on a list.
+
 ### Without Lock
 
 Just create a new instance of `FacebookAuthProvider` with an `AuthenticationAPIClient`.
@@ -103,6 +105,8 @@ provider.start(this, callback, RC_PERMISSIONS, RC_AUTHENTICATION);
 ```
 
 That's it! You'll receive the result in the `AuthCallback` you passed.
+
+> We provide this demo in the `SimpleActivity` class.
 
 ## Using a custom connection name
 To use a custom social connection name to authorize against Auth0, call `setConnection` with your new connection name.
