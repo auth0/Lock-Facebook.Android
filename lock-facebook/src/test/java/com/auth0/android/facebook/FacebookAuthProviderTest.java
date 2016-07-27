@@ -101,7 +101,7 @@ public class FacebookAuthProviderTest {
     public void shouldRequestLoginWhenStarted() throws Exception {
         provider.start(activity, callback, PERMISSION_REQ_CODE, AUTH_REQ_CODE);
 
-        Mockito.verify(apiHelper).login(activity, provider.getPermissions());
+        Mockito.verify(apiHelper).login(activity, AUTH_REQ_CODE, provider.getPermissions());
     }
 
     @Test

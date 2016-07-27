@@ -96,7 +96,7 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 }
 ```
 
-Call `start` to begin the authentication flow. Both the authentication and the permissions request code are ignored as they are defined internally by the Facebook SDK. Also this provider doesn't need any custom android permissions.
+Call `start` to begin the authentication flow. The permissions request code is ignored as this provider doesn't need any custom android permissions.
 
 ```java
 provider.start(this, callback, RC_PERMISSIONS, RC_AUTHENTICATION);

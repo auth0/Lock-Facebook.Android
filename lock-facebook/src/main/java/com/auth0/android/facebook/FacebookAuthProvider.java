@@ -61,7 +61,7 @@ public class FacebookAuthProvider extends AuthProvider {
     @Override
     protected void requestAuth(Activity activity, int requestCode) {
         apiHelper = createApiHelper(activity);
-        apiHelper.login(activity, permissions);
+        apiHelper.login(activity, requestCode, permissions);
     }
 
     @Override
@@ -105,7 +105,7 @@ public class FacebookAuthProvider extends AuthProvider {
     }
 
     FacebookApiHelper createApiHelper(Activity activity) {
-        return new FacebookApiHelper(activity, createFacebookCallback());
+        return new FacebookApiHelper(createFacebookCallback());
     }
 
     FacebookCallback<LoginResult> createFacebookCallback() {
