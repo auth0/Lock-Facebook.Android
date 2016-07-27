@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
-  ~ auth0.xml
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ activity_simplele.xml
   ~
   ~ Copyright (c) 2015 Auth0 (http://auth0.com)
   ~
@@ -22,8 +21,16 @@
   ~ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   ~ THE SOFTWARE.
   -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="80dp"
+    android:layout_height="80dp"
+    android:padding="5dp"
+    android:orientation="vertical">
 
-<resources>
-  <string name="com_auth0_client_id">hGou2NwxDfWEPI93dfcI7yilPf8ZPbfD</string>
-  <string name="com_auth0_domain">lbalmaceda.auth0.com</string>
-</resources>
+    <ImageView
+        android:id="@+id/image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop" />
+
+</LinearLayout>
