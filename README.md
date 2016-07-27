@@ -21,7 +21,7 @@ The Lock-Facebook is available through [Maven Central](http://search.maven.org) 
 compile 'com.auth0.android:lock-facebook:2.4.+'
 ```
 
-Then in your project's `AndroidManifest.xml` add the following entries:
+Then in your project's `AndroidManifest.xml` inside the application tag, add the following entries:
 
 ```xml
 <activity android:name="com.facebook.FacebookActivity"
@@ -113,6 +113,13 @@ To use a custom social connection name to authorize against Auth0, call `setConn
 
 ```java
 provider.setConnection("my-connection")
+```
+
+## Requesting custom Permissions
+By default, the permission `public_profile` is requested. You can customize them by calling `setPermissions` with the list of Permissions.
+
+```java
+provider.setPermissions(Arrays.asList("public_profile", "user_photos"));
 ```
 
 ## Log out / Clear account.
