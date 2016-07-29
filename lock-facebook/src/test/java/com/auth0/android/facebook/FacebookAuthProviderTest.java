@@ -105,7 +105,7 @@ public class FacebookAuthProviderTest {
     }
 
     @Test
-    public void shouldParseAuthorization() {
+    public void shouldParseAuthorization() throws Exception {
         Intent intent = Mockito.mock(Intent.class);
         provider.start(activity, callback, PERMISSION_REQ_CODE, AUTH_REQ_CODE);
         provider.authorize(AUTH_REQ_CODE, Activity.RESULT_OK, intent);
@@ -116,7 +116,7 @@ public class FacebookAuthProviderTest {
     }
 
     @Test
-    public void shouldReturnDelegatedParseResult() {
+    public void shouldReturnDelegatedParseResult() throws Exception {
         Intent intent = Mockito.mock(Intent.class);
 
         provider.start(activity, callback, PERMISSION_REQ_CODE, AUTH_REQ_CODE);
@@ -128,18 +128,31 @@ public class FacebookAuthProviderTest {
     }
 
     @Test
-    public void shouldDoNothingWhenCalledFromNewIntent() {
+    public void shouldDoNothingWhenCalledFromNewIntent() throws Exception {
         assertThat(provider.authorize(null), is(false));
     }
 
     @Test
-    public void shouldNotRequireAndroidPermissions() {
+    public void shouldNotLogoutBeforeLoginByDefault() throws Exception {
+        provider.start(activity, callback, PERMISSION_REQ_CODE, AUTH_REQ_CODE);
+        assertThat(provider.willLogoutBeforeLogin(), is(false));
+    }
+
+    @Test
+    public void shouldLogoutBeforeLoginIfRequested() throws Exception {
+        provider.forceRequestAccount(true);
+        provider.start(activity, callback, PERMISSION_REQ_CODE, AUTH_REQ_CODE);
+        assertThat(provider.willLogoutBeforeLogin(), is(true));
+    }
+
+    @Test
+    public void shouldNotRequireAndroidPermissions() throws Exception {
         assertThat(provider.getRequiredAndroidPermissions(), is(notNullValue()));
         assertThat(provider.getRequiredAndroidPermissions(), is(IsArrayWithSize.<String>emptyArray()));
     }
 
     @Test
-    public void shouldNotCallAuth0OAuthEndpointWhenSomePermissionsWereRejected() {
+    public void shouldNotCallAuth0OAuthEndpointWhenSomePermissionsWereRejected() throws Exception {
         provider.start(activity, callback, PERMISSION_REQ_CODE, AUTH_REQ_CODE);
         final AuthenticationRequest request = Mockito.mock(AuthenticationRequest.class);
         Mockito.when(client.loginWithOAuthAccessToken(TOKEN, CONNECTION_NAME)).thenReturn(request);
@@ -149,7 +162,7 @@ public class FacebookAuthProviderTest {
     }
 
     @Test
-    public void shouldFailWithTextWhenSomePermissionsWereRejected() {
+    public void shouldFailWithTextWhenSomePermissionsWereRejected() throws Exception {
         provider.start(activity, callback, PERMISSION_REQ_CODE, AUTH_REQ_CODE);
         final AuthenticationRequest request = Mockito.mock(AuthenticationRequest.class);
         Mockito.when(client.loginWithOAuthAccessToken(TOKEN, CONNECTION_NAME)).thenReturn(request);
@@ -160,12 +173,12 @@ public class FacebookAuthProviderTest {
         ArgumentCaptor<Integer> messageResCaptor = ArgumentCaptor.forClass(Integer.class);
         Mockito.verify(callback).onFailure(titleResCaptor.capture(), messageResCaptor.capture(), throwableCaptor.capture());
         assertThat(throwableCaptor.getValue(), is(nullValue()));
-        assertThat(titleResCaptor.getValue(), is(R.string.com_auth0_facebook_authentication_failed_title));
+        assertThat(titleResCaptor.getValue(), is(R.string.com_auth0_facebook_authentication_failed_missing_permissions_title));
         assertThat(messageResCaptor.getValue(), is(R.string.com_auth0_facebook_authentication_failed_missing_permissions_message));
     }
 
     @Test
-    public void shouldCallAuth0OAuthEndpointWhenFacebookTokenIsReceived() {
+    public void shouldCallAuth0OAuthEndpointWhenFacebookTokenIsReceived() throws Exception {
         provider.start(activity, callback, PERMISSION_REQ_CODE, AUTH_REQ_CODE);
         final AuthenticationRequest request = Mockito.mock(AuthenticationRequest.class);
         Mockito.when(client.loginWithOAuthAccessToken(TOKEN, CONNECTION_NAME)).thenReturn(request);
@@ -175,7 +188,7 @@ public class FacebookAuthProviderTest {
     }
 
     @Test
-    public void shouldCallAuth0OAuthEndpointWithCustomConnectionNameWhenGoogleTokenIsReceived() {
+    public void shouldCallAuth0OAuthEndpointWithCustomConnectionNameWhenGoogleTokenIsReceived() throws Exception {
         provider.setConnection("my-custom-connection");
         provider.start(activity, callback, PERMISSION_REQ_CODE, AUTH_REQ_CODE);
         final AuthenticationRequest request = Mockito.mock(AuthenticationRequest.class);
@@ -186,7 +199,7 @@ public class FacebookAuthProviderTest {
     }
 
     @Test
-    public void shouldFailWithTextWhenFacebookRequestFailed() {
+    public void shouldFailWithTextWhenFacebookRequestFailed() throws Exception {
         provider.start(activity, callback, PERMISSION_REQ_CODE, AUTH_REQ_CODE);
         provider.facebookCallback.onError(new FacebookException("error"));
 
@@ -200,7 +213,7 @@ public class FacebookAuthProviderTest {
     }
 
     @Test
-    public void shouldFailWithTextWhenFacebookRequestIsCancelled() {
+    public void shouldFailWithTextWhenFacebookRequestIsCancelled() throws Exception {
         provider.start(activity, callback, PERMISSION_REQ_CODE, AUTH_REQ_CODE);
         provider.facebookCallback.onCancel();
 
@@ -209,12 +222,12 @@ public class FacebookAuthProviderTest {
         ArgumentCaptor<Integer> messageResCaptor = ArgumentCaptor.forClass(Integer.class);
         Mockito.verify(callback).onFailure(titleResCaptor.capture(), messageResCaptor.capture(), throwableCaptor.capture());
         assertThat(throwableCaptor.getValue(), is(nullValue()));
-        assertThat(titleResCaptor.getValue(), is(R.string.com_auth0_facebook_authentication_failed_title));
+        assertThat(titleResCaptor.getValue(), is(R.string.com_auth0_facebook_authentication_cancelled_title));
         assertThat(messageResCaptor.getValue(), is(R.string.com_auth0_facebook_authentication_cancelled_error_message));
     }
 
     @Test
-    public void shouldFailWithTextWhenCredentialsRequestFailed() {
+    public void shouldFailWithTextWhenCredentialsRequestFailed() throws Exception {
         final AuthenticationRequest authRequest = new AuthenticationRequestMock(false);
         Mockito.when(client.loginWithOAuthAccessToken(TOKEN, CONNECTION_NAME))
                 .thenReturn(authRequest);
@@ -232,7 +245,7 @@ public class FacebookAuthProviderTest {
     }
 
     @Test
-    public void shouldSucceedIfCredentialsRequestSucceeded() {
+    public void shouldSucceedIfCredentialsRequestSucceeded() throws Exception {
         final AuthenticationRequest authRequest = new AuthenticationRequestMock(true);
         Mockito.when(client.loginWithOAuthAccessToken(TOKEN, CONNECTION_NAME))
                 .thenReturn(authRequest);
@@ -247,14 +260,14 @@ public class FacebookAuthProviderTest {
     }
 
     @Test
-    public void shouldLogoutOnClearSession() {
+    public void shouldLogoutOnClearSession() throws Exception {
         provider.start(activity, callback, PERMISSION_REQ_CODE, AUTH_REQ_CODE);
         provider.clearSession();
         Mockito.verify(apiHelper).logout();
     }
 
     @Test
-    public void shouldLogoutOnStop() {
+    public void shouldLogoutOnStop() throws Exception {
         provider.start(activity, callback, PERMISSION_REQ_CODE, AUTH_REQ_CODE);
         provider.stop();
         Mockito.verify(apiHelper).logout();

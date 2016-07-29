@@ -146,6 +146,7 @@ public class PhotosActivity extends AppCompatActivity {
                 AuthenticationAPIClient client = new AuthenticationAPIClient(getAccount());
                 FacebookAuthProvider facebookProvider = new FacebookAuthProvider(client);
                 facebookProvider.setPermissions(Arrays.asList("public_profile", "user_photos"));
+                facebookProvider.forceRequestAccount(true);
                 return facebookProvider;
             }
             return null;
