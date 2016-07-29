@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.auth0.android.Auth0;
 import com.auth0.android.authentication.AuthenticationAPIClient;
@@ -88,14 +89,19 @@ public class PhotosActivity extends AppCompatActivity {
                 new GraphRequest.GraphJSONObjectCallback() {
                     @Override
                     public void onCompleted(JSONObject object, GraphResponse response) {
+                        progressBar.setVisibility(View.GONE);
                         try {
                             final List<String> urls = parseAlbumData(object.getJSONObject("albums").getJSONArray("data"));
+                            if (urls.isEmpty()) {
+                                Toast.makeText(PhotosActivity.this, "You have no albums on Facebook!", Toast.LENGTH_LONG).show();
+                                return;
+                            }
+                            photos.clear();
                             photos.addAll(urls);
                             adapter.notifyDataSetChanged();
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                        progressBar.setVisibility(View.GONE);
                     }
                 });
         Bundle parameters = new Bundle();
@@ -130,10 +136,12 @@ public class PhotosActivity extends AppCompatActivity {
 
         @Override
         public void onCanceled() {
+            Toast.makeText(PhotosActivity.this, "Authentication cancelled", Toast.LENGTH_SHORT).show();
         }
 
         @Override
         public void onError(LockException error) {
+            Toast.makeText(PhotosActivity.this, "Error occurred. Please retry.", Toast.LENGTH_SHORT).show();
             Log.e(TAG, "Error occurred: " + error.getMessage());
         }
     };
