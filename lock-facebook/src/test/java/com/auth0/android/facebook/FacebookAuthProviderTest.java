@@ -29,7 +29,6 @@ import edu.emory.mathcs.backport.java.util.Collections;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
@@ -168,13 +167,11 @@ public class FacebookAuthProviderTest {
         Mockito.when(client.loginWithOAuthAccessToken(TOKEN, CONNECTION_NAME)).thenReturn(request);
         provider.facebookCallback.onSuccess(createLoginResultFromToken(TOKEN, false));
 
-        ArgumentCaptor<Throwable> throwableCaptor = ArgumentCaptor.forClass(Throwable.class);
-        ArgumentCaptor<Integer> titleResCaptor = ArgumentCaptor.forClass(Integer.class);
-        ArgumentCaptor<Integer> messageResCaptor = ArgumentCaptor.forClass(Integer.class);
-        Mockito.verify(callback).onFailure(titleResCaptor.capture(), messageResCaptor.capture(), throwableCaptor.capture());
-        assertThat(throwableCaptor.getValue(), is(nullValue()));
-        assertThat(titleResCaptor.getValue(), is(R.string.com_auth0_facebook_authentication_failed_missing_permissions_title));
-        assertThat(messageResCaptor.getValue(), is(R.string.com_auth0_facebook_authentication_failed_missing_permissions_message));
+        ArgumentCaptor<AuthenticationException> throwableCaptor = ArgumentCaptor.forClass(AuthenticationException.class);
+        Mockito.verify(callback).onFailure(throwableCaptor.capture());
+        final AuthenticationException exception = throwableCaptor.getValue();
+        assertThat(exception, is(notNullValue()));
+        assertThat(exception.getMessage(), is("Some of the requested permissions were not granted by the user."));
     }
 
     @Test
@@ -201,15 +198,13 @@ public class FacebookAuthProviderTest {
     @Test
     public void shouldFailWithTextWhenFacebookRequestFailed() throws Exception {
         provider.start(activity, callback, PERMISSION_REQ_CODE, AUTH_REQ_CODE);
-        provider.facebookCallback.onError(new FacebookException("error"));
+        provider.facebookCallback.onError(new FacebookException("facebook error"));
 
-        ArgumentCaptor<Throwable> throwableCaptor = ArgumentCaptor.forClass(Throwable.class);
-        ArgumentCaptor<Integer> titleResCaptor = ArgumentCaptor.forClass(Integer.class);
-        ArgumentCaptor<Integer> messageResCaptor = ArgumentCaptor.forClass(Integer.class);
-        Mockito.verify(callback).onFailure(titleResCaptor.capture(), messageResCaptor.capture(), throwableCaptor.capture());
-        assertThat(throwableCaptor.getValue(), is(instanceOf(FacebookException.class)));
-        assertThat(titleResCaptor.getValue(), is(R.string.com_auth0_facebook_authentication_failed_title));
-        assertThat(messageResCaptor.getValue(), is(R.string.com_auth0_facebook_authentication_failed_message));
+        ArgumentCaptor<AuthenticationException> throwableCaptor = ArgumentCaptor.forClass(AuthenticationException.class);
+        Mockito.verify(callback).onFailure(throwableCaptor.capture());
+        final AuthenticationException exception = throwableCaptor.getValue();
+        assertThat(exception, is(notNullValue()));
+        assertThat(exception.getMessage(), is("facebook error"));
     }
 
     @Test
@@ -217,13 +212,11 @@ public class FacebookAuthProviderTest {
         provider.start(activity, callback, PERMISSION_REQ_CODE, AUTH_REQ_CODE);
         provider.facebookCallback.onCancel();
 
-        ArgumentCaptor<Throwable> throwableCaptor = ArgumentCaptor.forClass(Throwable.class);
-        ArgumentCaptor<Integer> titleResCaptor = ArgumentCaptor.forClass(Integer.class);
-        ArgumentCaptor<Integer> messageResCaptor = ArgumentCaptor.forClass(Integer.class);
-        Mockito.verify(callback).onFailure(titleResCaptor.capture(), messageResCaptor.capture(), throwableCaptor.capture());
-        assertThat(throwableCaptor.getValue(), is(nullValue()));
-        assertThat(titleResCaptor.getValue(), is(R.string.com_auth0_facebook_authentication_cancelled_title));
-        assertThat(messageResCaptor.getValue(), is(R.string.com_auth0_facebook_authentication_cancelled_error_message));
+        ArgumentCaptor<AuthenticationException> throwableCaptor = ArgumentCaptor.forClass(AuthenticationException.class);
+        Mockito.verify(callback).onFailure(throwableCaptor.capture());
+        final AuthenticationException exception = throwableCaptor.getValue();
+        assertThat(exception, is(notNullValue()));
+        assertThat(exception.getMessage(), is("User cancelled the authentication consent dialog."));
     }
 
     @Test
@@ -235,13 +228,10 @@ public class FacebookAuthProviderTest {
         provider.start(activity, callback, PERMISSION_REQ_CODE, AUTH_REQ_CODE);
         provider.facebookCallback.onSuccess(createLoginResultFromToken(TOKEN, true));
 
-        ArgumentCaptor<Throwable> throwableCaptor = ArgumentCaptor.forClass(Throwable.class);
-        ArgumentCaptor<Integer> titleResCaptor = ArgumentCaptor.forClass(Integer.class);
-        ArgumentCaptor<Integer> messageResCaptor = ArgumentCaptor.forClass(Integer.class);
-        Mockito.verify(callback).onFailure(titleResCaptor.capture(), messageResCaptor.capture(), throwableCaptor.capture());
-        assertThat(throwableCaptor.getValue(), is(instanceOf(AuthenticationException.class)));
-        assertThat(titleResCaptor.getValue(), is(R.string.com_auth0_facebook_authentication_failed_title));
-        assertThat(messageResCaptor.getValue(), is(R.string.com_auth0_facebook_authentication_failed_message));
+        ArgumentCaptor<AuthenticationException> throwableCaptor = ArgumentCaptor.forClass(AuthenticationException.class);
+        Mockito.verify(callback).onFailure(throwableCaptor.capture());
+        final AuthenticationException exception = throwableCaptor.getValue();
+        assertThat(exception, is(notNullValue()));
     }
 
     @Test

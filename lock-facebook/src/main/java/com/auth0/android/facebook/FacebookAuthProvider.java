@@ -127,20 +127,20 @@ public class FacebookAuthProvider extends AuthProvider {
                     requestAuth0Token(loginResult.getAccessToken().getToken());
                 } else {
                     Log.w(TAG, "Some permissions were not granted: " + loginResult.getRecentlyDeniedPermissions().toString());
-                    callback.onFailure(R.string.com_auth0_facebook_authentication_failed_missing_permissions_title, R.string.com_auth0_facebook_authentication_failed_missing_permissions_message, null);
+                    getCallback().onFailure(new AuthenticationException("Some of the requested permissions were not granted by the user."));
                 }
             }
 
             @Override
             public void onCancel() {
                 Log.w(TAG, "User cancelled the log in dialog");
-                callback.onFailure(R.string.com_auth0_facebook_authentication_cancelled_title, R.string.com_auth0_facebook_authentication_cancelled_error_message, null);
+                getCallback().onFailure(new AuthenticationException("User cancelled the authentication consent dialog."));
             }
 
             @Override
             public void onError(FacebookException error) {
                 Log.e(TAG, "Error on log in: " + error.getMessage());
-                callback.onFailure(R.string.com_auth0_facebook_authentication_failed_title, R.string.com_auth0_facebook_authentication_failed_message, error);
+                getCallback().onFailure(new AuthenticationException(error.getMessage()));
             }
         };
     }
@@ -150,12 +150,12 @@ public class FacebookAuthProvider extends AuthProvider {
                 .start(new AuthenticationCallback<Credentials>() {
                     @Override
                     public void onSuccess(Credentials credentials) {
-                        callback.onSuccess(credentials);
+                        getCallback().onSuccess(credentials);
                     }
 
                     @Override
                     public void onFailure(AuthenticationException error) {
-                        callback.onFailure(R.string.com_auth0_facebook_authentication_failed_title, R.string.com_auth0_facebook_authentication_failed_message, error);
+                        getCallback().onFailure(error);
                     }
                 });
     }

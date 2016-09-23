@@ -1,8 +1,6 @@
 package com.auth0.android.facebook.app;
 
-import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -14,14 +12,12 @@ import android.widget.Toast;
 
 import com.auth0.android.Auth0;
 import com.auth0.android.authentication.AuthenticationAPIClient;
+import com.auth0.android.facebook.FacebookAuthHandler;
 import com.auth0.android.facebook.FacebookAuthProvider;
 import com.auth0.android.lock.AuthenticationCallback;
 import com.auth0.android.lock.Lock;
 import com.auth0.android.lock.LockCallback;
-import com.auth0.android.lock.provider.AuthProviderResolver;
 import com.auth0.android.lock.utils.LockException;
-import com.auth0.android.provider.AuthCallback;
-import com.auth0.android.provider.AuthProvider;
 import com.auth0.android.result.Credentials;
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
@@ -51,13 +47,14 @@ public class PhotosActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_photos);
 
+        FacebookAuthProvider provider = new FacebookAuthProvider(new AuthenticationAPIClient(getAccount()));
+        provider.setPermissions(Arrays.asList("public_profile", "user_photos"));
+        provider.forceRequestAccount(true);
         lock = Lock.newBuilder(getAccount(), authCallback)
-                .withProviderResolver(providerResolver)
-                .onlyUseConnections(Collections.singletonList(FACEBOOK_CONNECTION))
+                .withAuthHandlers(new FacebookAuthHandler(provider))
+                .allowedConnections(Collections.singletonList(FACEBOOK_CONNECTION))
                 .closable(true)
-                .build();
-        lock.onCreate(this);
-
+                .build(this);
 
         Button loginButton = (Button) findViewById(R.id.loginButton);
         loginButton.setOnClickListener(new View.OnClickListener() {
@@ -143,21 +140,6 @@ public class PhotosActivity extends AppCompatActivity {
         public void onError(LockException error) {
             Toast.makeText(PhotosActivity.this, "Error occurred. Please retry.", Toast.LENGTH_SHORT).show();
             Log.e(TAG, "Error occurred: " + error.getMessage());
-        }
-    };
-
-    private AuthProviderResolver providerResolver = new AuthProviderResolver() {
-        @Nullable
-        @Override
-        public AuthProvider onAuthProviderRequest(Context context, @NonNull AuthCallback callback, @NonNull String connectionName) {
-            if (FACEBOOK_CONNECTION.equals(connectionName)) {
-                AuthenticationAPIClient client = new AuthenticationAPIClient(getAccount());
-                FacebookAuthProvider facebookProvider = new FacebookAuthProvider(client);
-                facebookProvider.setPermissions(Arrays.asList("public_profile", "user_photos"));
-                facebookProvider.forceRequestAccount(true);
-                return facebookProvider;
-            }
-            return null;
         }
     };
 }
