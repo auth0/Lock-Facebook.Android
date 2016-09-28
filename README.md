@@ -2,14 +2,14 @@
 
 [![Build Status](https://travis-ci.org/auth0/Lock-Facebook.Android.svg?branch=master)](https://travis-ci.org/auth0/Lock-Facebook.Android)
 [![License](http://img.shields.io/:license-mit-blue.svg?style=flat)](http://doge.mit-license.org)
-[![Maven Central](https://img.shields.io/maven-central/v/com.auth0.android/lock-facebook.svg)](http://search.maven.org/#browse%7C1197001692)
-[![Download](https://api.bintray.com/packages/auth0/lock-android/lock-facebook/images/download.svg) ](https://bintray.com/auth0/lock-android/lock-facebook/_latestVersion)
+[![Maven Central](https://img.shields.io/maven-central/v/com.auth0.android/lock-facebook.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.auth0.android%22%20AND%20a%3A%22lock-facebook%22)
+[![Bintray](https://api.bintray.com/packages/auth0/lock-android/lock-facebook/images/download.svg) ](https://bintray.com/auth0/lock-android/lock-facebook/_latestVersion)
 
 [Auth0](https://auth0.com) is an authentication broker that supports social identity providers as well as enterprise identity providers such as Active Directory, LDAP, Google Apps and Salesforce.
 
 Lock-Facebook helps you integrate native Login with [Facebook Android SDK](https://github.com/facebook/facebook-android-sdk) and [Lock](https://auth0.com/lock)
 
-## Requierements
+## Requirements
 
 Android 4.0 or later.
 
@@ -39,20 +39,86 @@ The value `@string/facebook_app_id` is your Facebook Application ID that you can
 
 > For more information please check [Facebook Getting Started Guide](https://developers.facebook.com/docs/android/getting-started).
 
-## Usage
 
-Just create a new instance of `FacebookIdentityProvider`
+### With Lock
 
-```java
-    FacebookIdentityProvider facebook = new FacebookIdentityProvider();
-```
-
-and register it with your instance of `Lock`
+Create a new class and make it implement `AuthProviderResolver`. On the `onAuthProviderRequest` method compare the `connectionName` value against the connection you would like this provider to handle, and if it's a match return a new `FacebookAuthProvider` instance with an `AuthenticationAPIClient`.
 
 ```java
-Lock lock = ...;
-lock.setProvider(Strategies.Facebook.getName(), facebook);
+public class AuthHandler implements AuthProviderResolver {
+
+    @Nullable
+    @Override
+    public AuthProvider onAuthProviderRequest(Context context, @NonNull AuthCallback callback, @NonNull String connectionName) {
+        AuthProvider provider = null;
+        if (connectionName.equals("facebook")) {
+            Auth0 auth0 = new Auth0("auth0-client-id", "auth0-domain");
+            final AuthenticationAPIClient client = new AuthenticationAPIClient(auth0);
+            provider = new FacebookAuthProvider(client);
+        }
+        return provider;
+    }
+}
+
 ```
+
+Make a new instance of your provider resolver and set it when building the Lock instance.
+
+```java
+final AuthHandler authHandler = new AuthHandler(); 
+final Lock.Builder builder = Lock.newBuilder(getAccount(), callback);
+Lock lock = builder.withProviderResolver(authHandler);
+                //...
+                .build();
+```
+
+That's it! When **Lock** needs to authenticate using that connection name, it will ask the `AuthProviderResolver` for a valid `AuthProvider`.
+
+### Without Lock
+
+Just create a new instance of `FacebookAuthProvider` with an `AuthenticationAPIClient`.
+
+```java
+Auth0 auth0 = new Auth0("auth0-client-id", "auth0-domain");
+final AuthenticationAPIClient client = new AuthenticationAPIClient(auth0);
+FacebookAuthProvider provider = new FacebookAuthProvider(client);
+```
+
+Override your activity's `onActivityResult` method and redirect the received parameters to the provider instance's `authorize` method.
+
+```java
+@Override
+protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    if (provider.authorize(requestCode, resultCode, data)) {
+        return;
+    }
+    super.onActivityResult(requestCode, resultCode, data);
+}
+```
+
+Call `start` to begin the authentication flow. The permissions request code is ignored as this provider doesn't need any custom android permissions.
+
+```java
+provider.start(this, callback, RC_PERMISSIONS, RC_AUTHENTICATION);
+```
+
+That's it! You'll receive the result in the `AuthCallback` you passed.
+
+## Using a custom connection name
+To use a custom social connection name to authorize against Auth0, call `setConnection` with your new connection name.
+
+```java
+provider.setConnection("my-connection")
+```
+
+## Log out / Clear account.
+To log out the user so that the next time he's prompted to input his credentials call `clearSession`. After you do this the provider state will be invalid and you will need to call `start` again before trying to `authorize` a result.
+
+```java
+provider.clearSession();
+```
+ 
+> Calling `stop` has the same effect.
 
 ## Issue Reporting
 

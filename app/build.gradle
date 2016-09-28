@@ -5,11 +5,11 @@ android {
     buildToolsVersion compile.buildToolsVersion
 
     defaultConfig {
-        applicationId "com.auth0.facebook.testapp"
+        applicationId "com.auth0.android.facebook.app"
         minSdkVersion compile.minSdk
         targetSdkVersion compile.maxSdk
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "2.0.0"
     }
 
     buildTypes {
@@ -21,11 +21,6 @@ android {
 
     lintOptions {
         lintConfig file('../gradle/lint.xml')
-    }
-
-    packagingOptions {
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/NOTICE'
     }
 }
 

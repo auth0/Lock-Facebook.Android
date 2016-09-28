@@ -30,23 +30,24 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.auth0.facebook.testapp.MainActivity">
+    tools:context="com.auth0.android.facebook.app.MainActivity">
 
     <TextView
         android:id="@+id/textView"
-        android:layout_width="200dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/loginButton"
         android:layout_centerHorizontal="true"
-        />
+        android:layout_marginBottom="20dp"
+        android:gravity="center_horizontal"
+        android:textSize="20sp" />
 
     <Button
         android:id="@+id/loginButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:text="Log in with Facebook"
-        />
+        android:text="Log in with Facebook" />
 
     <Button
         android:id="@+id/logoutButton"
@@ -54,6 +55,5 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:text="Log out"
-        />
+        android:text="Log out" />
 </RelativeLayout>

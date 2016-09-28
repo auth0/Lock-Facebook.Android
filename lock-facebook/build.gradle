@@ -16,6 +16,10 @@ android {
         }
     }
 
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+
     lintOptions {
         lintConfig file('../gradle/lint.xml')
     }
@@ -23,9 +27,10 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile libraries.lock_identity_core
     compile libraries.app_compat
-    compile libraries.facebook_sdk
+    compile 'com.auth0.android:auth0:1.0.0-beta.3'
+    compile 'com.facebook.android:facebook-android-sdk:4.14.0'
+    testCompile libraries.testing
 }
 
 apply from: '../maven_push.gradle'
