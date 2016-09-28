@@ -49,7 +49,6 @@ public class PhotosActivity extends AppCompatActivity {
 
         FacebookAuthProvider provider = new FacebookAuthProvider(new AuthenticationAPIClient(getAccount()));
         provider.setPermissions(Arrays.asList("public_profile", "user_photos"));
-        provider.forceRequestAccount(true);
         lock = Lock.newBuilder(getAccount(), authCallback)
                 .withAuthHandlers(new FacebookAuthHandler(provider))
                 .allowedConnections(Collections.singletonList(FACEBOOK_CONNECTION))

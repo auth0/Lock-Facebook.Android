@@ -8,20 +8,20 @@ import com.facebook.login.LoginResult;
 
 public class FacebookAuthProviderMock extends FacebookAuthProvider {
 
-    private final FacebookApiHelper apiHelper;
+    private final FacebookApi apiHelper;
     FacebookCallback<LoginResult> facebookCallback;
     private boolean logoutBeforeLogin;
 
     /**
      * @param client an Auth0 AuthenticationAPIClient instance
      */
-    public FacebookAuthProviderMock(@NonNull AuthenticationAPIClient client, @NonNull FacebookApiHelper apiHelper) {
-        super(client);
+    public FacebookAuthProviderMock(@NonNull String connection, @NonNull AuthenticationAPIClient client, @NonNull FacebookApi apiHelper) {
+        super(connection, client);
         this.apiHelper = apiHelper;
     }
 
     @Override
-    FacebookApiHelper createApiHelper(boolean logoutBeforeLogin) {
+    FacebookApi createApiHelper(boolean logoutBeforeLogin) {
         createFacebookCallback();
         this.logoutBeforeLogin = logoutBeforeLogin;
         return apiHelper;

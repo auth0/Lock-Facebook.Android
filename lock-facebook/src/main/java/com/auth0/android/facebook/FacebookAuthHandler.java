@@ -22,7 +22,7 @@ public class FacebookAuthHandler implements AuthHandler {
     @Nullable
     @Override
     public AuthProvider providerFor(@NonNull String strategy, @NonNull String connection) {
-        if ("facebook".equals(connection)) {
+        if ("facebook".equals(strategy)) {
             return provider;
         }
         return null;

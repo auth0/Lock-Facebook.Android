@@ -24,20 +24,31 @@ import java.util.Collections;
 public class FacebookAuthProvider extends AuthProvider {
 
     private static final String TAG = FacebookAuthProvider.class.getSimpleName();
-    private final AuthenticationAPIClient auth0Client;
+    private final AuthenticationAPIClient auth0;
+    private final String connectionName;
 
     private Collection<String> permissions;
-    private String connectionName;
-    private FacebookApiHelper apiHelper;
-    private boolean forceRequestAccount;
+    private FacebookApi apiHelper;
+    private boolean rememberLastLogin;
 
     /**
-     * @param client an Auth0 AuthenticationAPIClient instance
+     * Creates a new Facebook Auth provider for the default Facebook connection
+     * @param connectionName name of the connection used to authenticate with Auth0
+     * @param auth0 an Auth0 AuthenticationAPIClient instance
      */
-    public FacebookAuthProvider(@NonNull AuthenticationAPIClient client) {
-        this.auth0Client = client;
+    public FacebookAuthProvider(String connectionName, AuthenticationAPIClient auth0) {
+        this.auth0 = auth0;
+        this.connectionName = connectionName;
         this.permissions = Collections.singleton("public_profile");
-        this.connectionName = "facebook";
+        this.rememberLastLogin = false;
+    }
+
+    /**
+     * Creates a new Facebook Auth provider for the default Facebook connection
+     * @param auth0 an Auth0 AuthenticationAPIClient instance
+     */
+    public FacebookAuthProvider(@NonNull AuthenticationAPIClient auth0) {
+        this("facebook", auth0);
     }
 
     /**
@@ -51,26 +62,20 @@ public class FacebookAuthProvider extends AuthProvider {
     }
 
     /**
-     * Whether it should clear the session and logout any existing user before trying to authenticate or not.
+     * Whether it should clear the session and logout any existing user before trying to authenticate or not. By default is false
      *
-     * @param forceRequestAccount the new force flag value.
+     * @param rememberLastLogin flag to remember last Facebook login
      */
-    public void forceRequestAccount(boolean forceRequestAccount) {
-        this.forceRequestAccount = forceRequestAccount;
-    }
-
-    /**
-     * Change the default connection to use when requesting the token to Auth0 server. By default this value is "facebook".
-     *
-     * @param connection that will be used to authenticate the user against Auth0.
-     */
-    public void setConnection(@NonNull String connection) {
-        this.connectionName = connection;
+    public void rememberLastLogin(boolean rememberLastLogin) {
+        this.rememberLastLogin = rememberLastLogin;
     }
 
     @Override
     protected void requestAuth(Activity activity, int requestCode) {
-        apiHelper = createApiHelper(forceRequestAccount);
+        apiHelper = createApiHelper(!this.rememberLastLogin);
+        if (!this.rememberLastLogin) {
+            apiHelper.logout();
+        }
         apiHelper.login(activity, requestCode, permissions);
     }
 
@@ -113,9 +118,8 @@ public class FacebookAuthProvider extends AuthProvider {
         return connectionName;
     }
 
-    FacebookApiHelper createApiHelper(boolean forceRequestAccount) {
-        final FacebookApiHelper helper = new FacebookApiHelper(createFacebookCallback());
-        helper.forceRequestAccount(forceRequestAccount);
+    FacebookApi createApiHelper(boolean rememberLastLogin) {
+        final FacebookApi helper = new FacebookApi(createFacebookCallback());
         return helper;
     }
 
@@ -146,7 +150,7 @@ public class FacebookAuthProvider extends AuthProvider {
     }
 
     private void requestAuth0Token(String token) {
-        auth0Client.loginWithOAuthAccessToken(token, connectionName)
+        auth0.loginWithOAuthAccessToken(token, connectionName)
                 .start(new AuthenticationCallback<Credentials>() {
                     @Override
                     public void onSuccess(Credentials credentials) {
