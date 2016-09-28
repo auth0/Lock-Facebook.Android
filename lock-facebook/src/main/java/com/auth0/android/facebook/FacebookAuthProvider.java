@@ -26,9 +26,9 @@ public class FacebookAuthProvider extends AuthProvider {
     private static final String TAG = FacebookAuthProvider.class.getSimpleName();
     private final AuthenticationAPIClient auth0;
     private final String connectionName;
+    private final FacebookApi facebook;
 
     private Collection<String> permissions;
-    private FacebookApi apiHelper;
     private boolean rememberLastLogin;
 
     /**
@@ -37,8 +37,13 @@ public class FacebookAuthProvider extends AuthProvider {
      * @param auth0 an Auth0 AuthenticationAPIClient instance
      */
     public FacebookAuthProvider(String connectionName, AuthenticationAPIClient auth0) {
+        this(connectionName, auth0, new FacebookApi());
+    }
+
+    FacebookAuthProvider(String connectionName, AuthenticationAPIClient auth0, FacebookApi facebook) {
         this.auth0 = auth0;
         this.connectionName = connectionName;
+        this.facebook = facebook;
         this.permissions = Collections.singleton("public_profile");
         this.rememberLastLogin = false;
     }
@@ -72,16 +77,15 @@ public class FacebookAuthProvider extends AuthProvider {
 
     @Override
     protected void requestAuth(Activity activity, int requestCode) {
-        apiHelper = createApiHelper(!this.rememberLastLogin);
         if (!this.rememberLastLogin) {
-            apiHelper.logout();
+            facebook.logout();
         }
-        apiHelper.login(activity, requestCode, permissions);
+        facebook.login(activity, requestCode, permissions, createFacebookCallback());
     }
 
     @Override
     public boolean authorize(int requestCode, int resultCode, @Nullable Intent intent) {
-        return apiHelper.finishLogin(requestCode, resultCode, intent);
+        return facebook.finishLogin(requestCode, resultCode, intent);
     }
 
     @Override
@@ -104,10 +108,7 @@ public class FacebookAuthProvider extends AuthProvider {
     @Override
     public void clearSession() {
         super.clearSession();
-        if (apiHelper != null) {
-            apiHelper.logout();
-            apiHelper = null;
-        }
+        facebook.logout();
     }
 
     Collection<String> getPermissions() {
@@ -118,13 +119,8 @@ public class FacebookAuthProvider extends AuthProvider {
         return connectionName;
     }
 
-    FacebookApi createApiHelper(boolean rememberLastLogin) {
-        final FacebookApi helper = new FacebookApi(createFacebookCallback());
-        return helper;
-    }
-
-    FacebookCallback<LoginResult> createFacebookCallback() {
-        return new FacebookCallback<LoginResult>() {
+    FacebookApi.Callback createFacebookCallback() {
+        return new FacebookApi.Callback() {
             @Override
             public void onSuccess(LoginResult loginResult) {
                 if (loginResult.getRecentlyDeniedPermissions().isEmpty()) {

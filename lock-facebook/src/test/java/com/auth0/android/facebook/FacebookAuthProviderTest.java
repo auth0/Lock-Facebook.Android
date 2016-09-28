@@ -21,7 +21,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.internal.verification.VerificationModeFactory;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -34,7 +33,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyCollectionOf;
 import static org.mockito.Mockito.*;
+import static org.mockito.internal.verification.VerificationModeFactory.noMoreInteractions;
 
 public class FacebookAuthProviderTest {
 
@@ -58,12 +60,12 @@ public class FacebookAuthProviderTest {
     @Mock
     private Intent intent;
 
-    private FacebookAuthProviderMock provider;
+    private FacebookAuthProvider provider;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        provider = new FacebookAuthProviderMock("facebook", client, apiHelper);
+        provider = new FacebookAuthProvider("facebook", client, apiHelper);
     }
 
     @Test
@@ -89,7 +91,7 @@ public class FacebookAuthProviderTest {
 
     @Test
     public void shouldSetConnectionName() throws Exception {
-        provider = new FacebookAuthProviderMock("my-custom-connection", client, apiHelper);
+        provider = new FacebookAuthProvider("my-custom-connection", client, apiHelper);
 
         assertThat(provider.getConnection(), is("my-custom-connection"));
     }
@@ -108,7 +110,7 @@ public class FacebookAuthProviderTest {
     public void shouldRequestLoginWhenStarted() throws Exception {
         provider.start(activity, callback, PERMISSION_REQ_CODE, AUTH_REQ_CODE);
 
-        verify(apiHelper).login(activity, AUTH_REQ_CODE, provider.getPermissions());
+        verify(apiHelper).login(eq(activity), eq(AUTH_REQ_CODE), eq(provider.getPermissions()), any(FacebookApi.Callback.class));
     }
 
     @Test
@@ -139,14 +141,14 @@ public class FacebookAuthProviderTest {
     @Test
     public void shouldLogoutBeforeLoginByDefault() throws Exception {
         provider.start(activity, callback, PERMISSION_REQ_CODE, AUTH_REQ_CODE);
-        assertThat(provider.willLogoutBeforeLogin(), is(true));
+        verify(apiHelper).logout();
     }
 
     @Test
     public void shouldLogoutBeforeLoginIfRequested() throws Exception {
         provider.rememberLastLogin(false);
         provider.start(activity, callback, PERMISSION_REQ_CODE, AUTH_REQ_CODE);
-        assertThat(provider.willLogoutBeforeLogin(), is(true));
+        verify(apiHelper).logout();
     }
 
     @Test
@@ -157,18 +159,32 @@ public class FacebookAuthProviderTest {
 
     @Test
     public void shouldNotCallAuth0OAuthEndpointWhenSomePermissionsWereRejected() throws Exception {
-        provider.start(activity, callback, PERMISSION_REQ_CODE, AUTH_REQ_CODE);
         when(client.loginWithOAuthAccessToken(TOKEN, CONNECTION_NAME)).thenReturn(request);
-        provider.facebookCallback.onSuccess(createLoginResultFromToken(TOKEN, false));
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                final FacebookApi.Callback callback = (FacebookApi.Callback) invocation.getArguments()[3];
+                callback.onSuccess(createLoginResultFromToken(TOKEN, false));
+                return null;
+            }
+        }).when(apiHelper).login(eq(activity), eq(AUTH_REQ_CODE), anyCollectionOf(String.class), any(FacebookApi.Callback.class));
+        provider.start(activity, callback, PERMISSION_REQ_CODE, AUTH_REQ_CODE);
 
-        verify(client, VerificationModeFactory.noMoreInteractions()).loginWithOAuthAccessToken(TOKEN, CONNECTION_NAME);
+        verify(client, noMoreInteractions()).loginWithOAuthAccessToken(TOKEN, CONNECTION_NAME);
     }
 
     @Test
     public void shouldFailWithTextWhenSomePermissionsWereRejected() throws Exception {
-        provider.start(activity, callback, PERMISSION_REQ_CODE, AUTH_REQ_CODE);
         when(client.loginWithOAuthAccessToken(TOKEN, CONNECTION_NAME)).thenReturn(request);
-        provider.facebookCallback.onSuccess(createLoginResultFromToken(TOKEN, false));
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                final FacebookApi.Callback callback = (FacebookApi.Callback) invocation.getArguments()[3];
+                callback.onSuccess(createLoginResultFromToken(TOKEN, false));
+                return null;
+            }
+        }).when(apiHelper).login(eq(activity), eq(AUTH_REQ_CODE), anyCollectionOf(String.class), any(FacebookApi.Callback.class));
+        provider.start(activity, callback, PERMISSION_REQ_CODE, AUTH_REQ_CODE);
 
         ArgumentCaptor<AuthenticationException> throwableCaptor = ArgumentCaptor.forClass(AuthenticationException.class);
         verify(callback).onFailure(throwableCaptor.capture());
@@ -179,27 +195,48 @@ public class FacebookAuthProviderTest {
 
     @Test
     public void shouldCallAuth0OAuthEndpointWhenFacebookTokenIsReceived() throws Exception {
-        provider.start(activity, callback, PERMISSION_REQ_CODE, AUTH_REQ_CODE);
         when(client.loginWithOAuthAccessToken(TOKEN, CONNECTION_NAME)).thenReturn(request);
-        provider.facebookCallback.onSuccess(createLoginResultFromToken(TOKEN, true));
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                final FacebookApi.Callback callback = (FacebookApi.Callback) invocation.getArguments()[3];
+                callback.onSuccess(createLoginResultFromToken(TOKEN, true));
+                return null;
+            }
+        }).when(apiHelper).login(eq(activity), eq(AUTH_REQ_CODE), anyCollectionOf(String.class), any(FacebookApi.Callback.class));
+        provider.start(activity, callback, PERMISSION_REQ_CODE, AUTH_REQ_CODE);
 
         verify(client).loginWithOAuthAccessToken(TOKEN, CONNECTION_NAME);
     }
 
     @Test
     public void shouldCallAuth0OAuthEndpointWithCustomConnectionNameWhenGoogleTokenIsReceived() throws Exception {
-        provider = new FacebookAuthProviderMock("my-custom-connection", client, apiHelper);
-        provider.start(activity, callback, PERMISSION_REQ_CODE, AUTH_REQ_CODE);
+        provider = new FacebookAuthProvider("my-custom-connection", client, apiHelper);
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                final FacebookApi.Callback callback = (FacebookApi.Callback) invocation.getArguments()[3];
+                callback.onSuccess(createLoginResultFromToken(TOKEN, true));
+                return null;
+            }
+        }).when(apiHelper).login(eq(activity), eq(AUTH_REQ_CODE), anyCollectionOf(String.class), any(FacebookApi.Callback.class));
         when(client.loginWithOAuthAccessToken(TOKEN, "my-custom-connection")).thenReturn(request);
-        provider.facebookCallback.onSuccess(createLoginResultFromToken(TOKEN, true));
+        provider.start(activity, callback, PERMISSION_REQ_CODE, AUTH_REQ_CODE);
 
         verify(client).loginWithOAuthAccessToken(TOKEN, "my-custom-connection");
     }
 
     @Test
     public void shouldFailWithTextWhenFacebookRequestFailed() throws Exception {
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                final FacebookApi.Callback callback = (FacebookApi.Callback) invocation.getArguments()[3];
+                callback.onError(new FacebookException("facebook error"));
+                return null;
+            }
+        }).when(apiHelper).login(eq(activity), eq(AUTH_REQ_CODE), anyCollectionOf(String.class), any(FacebookApi.Callback.class));
         provider.start(activity, callback, PERMISSION_REQ_CODE, AUTH_REQ_CODE);
-        provider.facebookCallback.onError(new FacebookException("facebook error"));
 
         ArgumentCaptor<AuthenticationException> throwableCaptor = ArgumentCaptor.forClass(AuthenticationException.class);
         verify(callback).onFailure(throwableCaptor.capture());
@@ -210,8 +247,15 @@ public class FacebookAuthProviderTest {
 
     @Test
     public void shouldFailWithTextWhenFacebookRequestIsCancelled() throws Exception {
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                final FacebookApi.Callback callback = (FacebookApi.Callback) invocation.getArguments()[3];
+                callback.onCancel();
+                return null;
+            }
+        }).when(apiHelper).login(eq(activity), eq(AUTH_REQ_CODE), anyCollectionOf(String.class), any(FacebookApi.Callback.class));
         provider.start(activity, callback, PERMISSION_REQ_CODE, AUTH_REQ_CODE);
-        provider.facebookCallback.onCancel();
 
         ArgumentCaptor<AuthenticationException> throwableCaptor = ArgumentCaptor.forClass(AuthenticationException.class);
         verify(callback).onFailure(throwableCaptor.capture());
@@ -222,12 +266,19 @@ public class FacebookAuthProviderTest {
 
     @Test
     public void shouldFailWithTextWhenCredentialsRequestFailed() throws Exception {
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                final FacebookApi.Callback callback = (FacebookApi.Callback) invocation.getArguments()[3];
+                callback.onSuccess(createLoginResultFromToken(TOKEN, true));
+                return null;
+            }
+        }).when(apiHelper).login(eq(activity), eq(AUTH_REQ_CODE), anyCollectionOf(String.class), any(FacebookApi.Callback.class));
         shouldFailRequest(request);
         when(client.loginWithOAuthAccessToken(TOKEN, CONNECTION_NAME))
                 .thenReturn(request);
 
         provider.start(activity, callback, PERMISSION_REQ_CODE, AUTH_REQ_CODE);
-        provider.facebookCallback.onSuccess(createLoginResultFromToken(TOKEN, true));
 
         ArgumentCaptor<AuthenticationException> throwableCaptor = ArgumentCaptor.forClass(AuthenticationException.class);
         verify(callback).onFailure(throwableCaptor.capture());
@@ -237,12 +288,19 @@ public class FacebookAuthProviderTest {
 
     @Test
     public void shouldSucceedIfCredentialsRequestSucceeded() throws Exception {
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                final FacebookApi.Callback callback = (FacebookApi.Callback) invocation.getArguments()[3];
+                callback.onSuccess(createLoginResultFromToken(TOKEN, true));
+                return null;
+            }
+        }).when(apiHelper).login(eq(activity), eq(AUTH_REQ_CODE), anyCollectionOf(String.class), any(FacebookApi.Callback.class));
         shouldYieldCredentialsForRequest(request, credentials);
         when(client.loginWithOAuthAccessToken(TOKEN, CONNECTION_NAME))
                 .thenReturn(request);
 
         provider.start(activity, callback, PERMISSION_REQ_CODE, AUTH_REQ_CODE);
-        provider.facebookCallback.onSuccess(createLoginResultFromToken(TOKEN, true));
 
         ArgumentCaptor<Credentials> credentialsCaptor = ArgumentCaptor.forClass(Credentials.class);
         verify(callback).onSuccess(credentialsCaptor.capture());
