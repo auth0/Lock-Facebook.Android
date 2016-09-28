@@ -1,4 +1,13 @@
 # Change Log
+## [3.0.0](https://github.com/auth0/Lock-Facebook.Android/tree/3.0.0)
+[Full Changelog](https://github.com/auth0/Lock-Facebook.Android/compare/2.3.0...3.0.0)
+
+**Added**
+- Add FacebookAuthHandler to make it simple to use this provider with Lock [\#10](https://github.com/auth0/Lock-Facebook.Android/pull/10) ([lbalmaceda](https://github.com/lbalmaceda))
+
+**Breaking changes**
+- Make Lock-Facebook work with Lock v2 AuthProvider [\#9](https://github.com/auth0/Lock-Facebook.Android/pull/9) ([lbalmaceda](https://github.com/lbalmaceda))
+
 
 ## [2.4.0](https://github.com/auth0/Lock-Facebook.Android/tree/2.4.0)
 [Full Changelog](https://github.com/auth0/Lock-Facebook.Android/compare/2.3.0...2.4.0)
