@@ -1,6 +1,7 @@
 package com.auth0.android.facebook;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -9,6 +10,7 @@ import android.util.Log;
 import com.auth0.android.authentication.AuthenticationAPIClient;
 import com.auth0.android.authentication.AuthenticationException;
 import com.auth0.android.callback.AuthenticationCallback;
+import com.auth0.android.provider.AuthCallback;
 import com.auth0.android.provider.AuthProvider;
 import com.auth0.android.result.Credentials;
 import com.facebook.FacebookCallback;
@@ -119,7 +121,8 @@ public class FacebookAuthProvider extends AuthProvider {
         return connectionName;
     }
 
-    FacebookApi.Callback createFacebookCallback() {
+    private FacebookApi.Callback createFacebookCallback() {
+        final AuthCallback callback = getSafeCallback();
         return new FacebookApi.Callback() {
             @Override
             public void onSuccess(LoginResult loginResult) {
@@ -127,36 +130,58 @@ public class FacebookAuthProvider extends AuthProvider {
                     requestAuth0Token(loginResult.getAccessToken().getToken());
                 } else {
                     Log.w(TAG, "Some permissions were not granted: " + loginResult.getRecentlyDeniedPermissions().toString());
-                    getCallback().onFailure(new AuthenticationException("Some of the requested permissions were not granted by the user."));
+                    callback.onFailure(new AuthenticationException("Some of the requested permissions were not granted by the user."));
                 }
             }
 
             @Override
             public void onCancel() {
                 Log.w(TAG, "User cancelled the log in dialog");
-                getCallback().onFailure(new AuthenticationException("User cancelled the authentication consent dialog."));
+                callback.onFailure(new AuthenticationException("User cancelled the authentication consent dialog."));
             }
 
             @Override
             public void onError(FacebookException error) {
                 Log.e(TAG, "Error on log in: " + error.getMessage());
-                getCallback().onFailure(new AuthenticationException(error.getMessage()));
+                callback.onFailure(new AuthenticationException(error.getMessage()));
             }
         };
     }
 
     private void requestAuth0Token(String token) {
+        final AuthCallback callback = getSafeCallback();
         auth0.loginWithOAuthAccessToken(token, connectionName)
                 .start(new AuthenticationCallback<Credentials>() {
                     @Override
                     public void onSuccess(Credentials credentials) {
-                        getCallback().onSuccess(credentials);
+                        callback.onSuccess(credentials);
                     }
 
                     @Override
                     public void onFailure(AuthenticationException error) {
-                        getCallback().onFailure(error);
+                        callback.onFailure(error);
                     }
                 });
+    }
+
+
+    private AuthCallback getSafeCallback() {
+        final AuthCallback callback = getCallback();
+        return callback != null ? callback : new AuthCallback() {
+            @Override
+            public void onFailure(@NonNull Dialog dialog) {
+                Log.w(TAG, "Called authorize with no callback defined");
+            }
+
+            @Override
+            public void onFailure(AuthenticationException exception) {
+                Log.w(TAG, "Called authorize with no callback defined");
+            }
+
+            @Override
+            public void onSuccess(@NonNull Credentials credentials) {
+                Log.w(TAG, "Called authorize with no callback defined");
+            }
+        };
     }
 }
