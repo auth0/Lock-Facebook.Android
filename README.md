@@ -49,7 +49,6 @@ Auth0 auth0 = new Auth0("auth0-client-id", "auth0-domain");
 
 FacebookAuthProvider provider = new FacebookAuthProvider(new AuthenticationAPIClient(auth0));
 provider.setPermissions(Arrays.asList("public_profile", "user_photos"));
-provider.forceRequestAccount(true);
 
 FacebookAuthHandler handler = new FacebookAuthHandler(provider);
 ```
@@ -103,7 +102,7 @@ That's it! You'll receive the result in the `AuthCallback` you passed.
 To use a custom social connection name to authorize against Auth0, call `setConnection` with your new connection name.
 
 ```java
-provider.setConnection("my-connection")
+FacebookAuthProvider provider = new FacebookAuthProvider("my_connection_name", client);
 ```
 
 ## Requesting custom Permissions
