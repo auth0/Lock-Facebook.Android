@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ activity_main.xml
+  ~ activity_simplele.xml
   ~
   ~ Copyright (c) 2015 Auth0 (http://auth0.com)
   ~
@@ -30,7 +30,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.auth0.android.facebook.app.MainActivity">
+    tools:context=".SimpleActivity">
 
     <TextView
         android:id="@+id/textView"

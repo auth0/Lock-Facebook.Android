@@ -1,7 +1,7 @@
-<!--
-  ~ strings.xml
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ activity_simplele.xml
   ~
-  ~ Copyright (c) 2014 Auth0 (http://auth0.com)
+  ~ Copyright (c) 2015 Auth0 (http://auth0.com)
   ~
   ~ Permission is hereby granted, free of charge, to any person obtaining a copy
   ~ of this software and associated documentation files (the "Software"), to deal
@@ -21,14 +21,16 @@
   ~ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   ~ THE SOFTWARE.
   -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="80dp"
+    android:layout_height="80dp"
+    android:padding="5dp"
+    android:orientation="vertical">
 
-<resources>
-    <string name="com_auth0_facebook_authentication_failed_title">Failed to login with Facebook</string>
-    <string name="com_auth0_facebook_authentication_failed_message">We were unable to login with your Facebook account, please try again.</string>
+    <ImageView
+        android:id="@+id/image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop" />
 
-    <string name="com_auth0_facebook_authentication_failed_missing_permissions_title">Couldn\'t login with Facebook</string>
-    <string name="com_auth0_facebook_authentication_failed_missing_permissions_message">Please grant the requested permissions to login with Facebook.</string>
-
-    <string name="com_auth0_facebook_authentication_cancelled_title">Couldn\'t login with Facebook</string>
-    <string name="com_auth0_facebook_authentication_cancelled_error_message">Please authorize the application to login with Facebook.</string>
-</resources>
+</LinearLayout>

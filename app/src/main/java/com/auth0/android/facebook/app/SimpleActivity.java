@@ -29,7 +29,6 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.StringRes;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -38,14 +37,15 @@ import android.widget.TextView;
 
 import com.auth0.android.Auth0;
 import com.auth0.android.authentication.AuthenticationAPIClient;
+import com.auth0.android.authentication.AuthenticationException;
 import com.auth0.android.facebook.FacebookAuthProvider;
 import com.auth0.android.provider.AuthCallback;
 import com.auth0.android.result.Credentials;
 
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class SimpleActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private static final String TAG = MainActivity.class.getName();
+    private static final String TAG = SimpleActivity.class.getName();
     private static final int RC_PERMISSIONS = 110;
     private static final int RC_AUTHENTICATION = 111;
 
@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_simple);
 
         message = (TextView) findViewById(R.id.textView);
         Button loginButton = (Button) findViewById(R.id.loginButton);
@@ -80,14 +80,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
 
             @Override
-            public void onFailure(@StringRes final int titleResource, @StringRes final int messageResource, Throwable cause) {
-                Log.e(TAG, "Failed with message " + getString(messageResource), cause);
+            public void onFailure(final AuthenticationException exception) {
+                Log.e(TAG, "Failed with message " + exception.getMessage());
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        AlertDialog dialog = new AlertDialog.Builder(MainActivity.this)
-                                .setTitle(titleResource)
-                                .setMessage(messageResource)
+                        AlertDialog dialog = new AlertDialog.Builder(SimpleActivity.this)
+                                .setTitle(R.string.com_auth0_facebook_authentication_failed_title)
+                                .setMessage(exception.getMessage())
                                 .create();
                         dialog.show();
                     }
@@ -124,7 +124,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (provider.authorize(requestCode, resultCode, data)) {
+        if (requestCode == RC_AUTHENTICATION) {
+            provider.authorize(requestCode, resultCode, data);
             return;
         }
         super.onActivityResult(requestCode, resultCode, data);

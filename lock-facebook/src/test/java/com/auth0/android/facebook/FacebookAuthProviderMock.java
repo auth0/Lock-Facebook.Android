@@ -1,6 +1,5 @@
 package com.auth0.android.facebook;
 
-import android.app.Activity;
 import android.support.annotation.NonNull;
 
 import com.auth0.android.authentication.AuthenticationAPIClient;
@@ -11,6 +10,7 @@ public class FacebookAuthProviderMock extends FacebookAuthProvider {
 
     private final FacebookApiHelper apiHelper;
     FacebookCallback<LoginResult> facebookCallback;
+    private boolean logoutBeforeLogin;
 
     /**
      * @param client an Auth0 AuthenticationAPIClient instance
@@ -21,8 +21,9 @@ public class FacebookAuthProviderMock extends FacebookAuthProvider {
     }
 
     @Override
-    FacebookApiHelper createApiHelper(Activity activity) {
+    FacebookApiHelper createApiHelper(boolean logoutBeforeLogin) {
         createFacebookCallback();
+        this.logoutBeforeLogin = logoutBeforeLogin;
         return apiHelper;
     }
 
@@ -30,5 +31,9 @@ public class FacebookAuthProviderMock extends FacebookAuthProvider {
     FacebookCallback<LoginResult> createFacebookCallback() {
         facebookCallback = super.createFacebookCallback();
         return facebookCallback;
+    }
+
+    boolean willLogoutBeforeLogin() {
+        return logoutBeforeLogin;
     }
 }

@@ -29,6 +29,7 @@ public class FacebookAuthProvider extends AuthProvider {
     private Collection<String> permissions;
     private String connectionName;
     private FacebookApiHelper apiHelper;
+    private boolean forceRequestAccount;
 
     /**
      * @param client an Auth0 AuthenticationAPIClient instance
@@ -50,6 +51,15 @@ public class FacebookAuthProvider extends AuthProvider {
     }
 
     /**
+     * Whether it should clear the session and logout any existing user before trying to authenticate or not.
+     *
+     * @param forceRequestAccount the new force flag value.
+     */
+    public void forceRequestAccount(boolean forceRequestAccount) {
+        this.forceRequestAccount = forceRequestAccount;
+    }
+
+    /**
      * Change the default connection to use when requesting the token to Auth0 server. By default this value is "facebook".
      *
      * @param connection that will be used to authenticate the user against Auth0.
@@ -60,7 +70,7 @@ public class FacebookAuthProvider extends AuthProvider {
 
     @Override
     protected void requestAuth(Activity activity, int requestCode) {
-        apiHelper = createApiHelper(activity);
+        apiHelper = createApiHelper(forceRequestAccount);
         apiHelper.login(activity, requestCode, permissions);
     }
 
@@ -95,7 +105,6 @@ public class FacebookAuthProvider extends AuthProvider {
         }
     }
 
-
     Collection<String> getPermissions() {
         return permissions;
     }
@@ -104,8 +113,10 @@ public class FacebookAuthProvider extends AuthProvider {
         return connectionName;
     }
 
-    FacebookApiHelper createApiHelper(Activity activity) {
-        return new FacebookApiHelper(createFacebookCallback());
+    FacebookApiHelper createApiHelper(boolean forceRequestAccount) {
+        final FacebookApiHelper helper = new FacebookApiHelper(createFacebookCallback());
+        helper.forceRequestAccount(forceRequestAccount);
+        return helper;
     }
 
     FacebookCallback<LoginResult> createFacebookCallback() {
@@ -116,20 +127,20 @@ public class FacebookAuthProvider extends AuthProvider {
                     requestAuth0Token(loginResult.getAccessToken().getToken());
                 } else {
                     Log.w(TAG, "Some permissions were not granted: " + loginResult.getRecentlyDeniedPermissions().toString());
-                    callback.onFailure(R.string.com_auth0_facebook_authentication_failed_title, R.string.com_auth0_facebook_authentication_failed_missing_permissions_message, null);
+                    getCallback().onFailure(new AuthenticationException("Some of the requested permissions were not granted by the user."));
                 }
             }
 
             @Override
             public void onCancel() {
                 Log.w(TAG, "User cancelled the log in dialog");
-                callback.onFailure(R.string.com_auth0_facebook_authentication_failed_title, R.string.com_auth0_facebook_authentication_cancelled_error_message, null);
+                getCallback().onFailure(new AuthenticationException("User cancelled the authentication consent dialog."));
             }
 
             @Override
             public void onError(FacebookException error) {
                 Log.e(TAG, "Error on log in: " + error.getMessage());
-                callback.onFailure(R.string.com_auth0_facebook_authentication_failed_title, R.string.com_auth0_facebook_authentication_failed_message, error);
+                getCallback().onFailure(new AuthenticationException(error.getMessage()));
             }
         };
     }
@@ -139,12 +150,12 @@ public class FacebookAuthProvider extends AuthProvider {
                 .start(new AuthenticationCallback<Credentials>() {
                     @Override
                     public void onSuccess(Credentials credentials) {
-                        callback.onSuccess(credentials);
+                        getCallback().onSuccess(credentials);
                     }
 
                     @Override
                     public void onFailure(AuthenticationException error) {
-                        callback.onFailure(R.string.com_auth0_facebook_authentication_failed_title, R.string.com_auth0_facebook_authentication_failed_message, error);
+                        getCallback().onFailure(error);
                     }
                 });
     }

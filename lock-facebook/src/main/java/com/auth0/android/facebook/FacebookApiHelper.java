@@ -16,6 +16,7 @@ class FacebookApiHelper {
 
     private final FacebookCallback<LoginResult> facebookCallback;
     private CallbackManager callbackManager;
+    private boolean forceRequestAccount;
 
     public FacebookApiHelper(FacebookCallback<LoginResult> facebookCallback) {
         this.facebookCallback = facebookCallback;
@@ -28,11 +29,23 @@ class FacebookApiHelper {
         } else {
             FacebookSdk.sdkInitialize(activity, requestCode);
         }
+        if (forceRequestAccount){
+            logout();
+        }
         //Use callbackRequestCodeOffset as the requestCode because Login RC is internally defined as "offset + 0".
         //see https://github.com/facebook/facebook-android-sdk/blob/master/facebook/src/main/java/com/facebook/internal/CallbackManagerImpl.java#L92
         callbackManager = CallbackManager.Factory.create();
         LoginManager.getInstance().registerCallback(callbackManager, facebookCallback);
         LoginManager.getInstance().logInWithReadPermissions(activity, permissions);
+    }
+
+    /**
+     * Whether it should clear the session and logout any existing user before trying to authenticate or not.
+     *
+     * @param forceRequestAccount the new force flag value.
+     */
+    public void forceRequestAccount(boolean forceRequestAccount) {
+        this.forceRequestAccount = forceRequestAccount;
     }
 
     public void logout() {
