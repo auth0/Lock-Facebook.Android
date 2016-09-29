@@ -11,7 +11,7 @@ if (hasProperty('bintray.user') && hasProperty('bintray.key') && hasProperty('bi
         publish = false
         pkg {
             repo = 'lock-android'
-            name = 'Lock-Facebook'
+            name = 'lock-facebook'
             desc = 'Lock for Android add-on to use Facebook Android SDK'
             websiteUrl = 'https://github.com/auth0/Lock-Facebook.Android'
             vcsUrl = 'scm:git@github.com:auth0/lock-facebook.android.git'
