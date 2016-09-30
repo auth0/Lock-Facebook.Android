@@ -50,7 +50,11 @@ class FacebookApi {
     }
 
     public void logout() {
-        LoginManager.getInstance().logOut();
+        if (FacebookSdk.isInitialized()){
+            LoginManager.getInstance().logOut();
+        } else {
+            Log.w("FacebookAuthProvider", "Couldn't log out as the SDK wasn't initialized yet.");
+        }
     }
 
     public boolean finishLogin(int requestCode, int resultCode, Intent intent) {
