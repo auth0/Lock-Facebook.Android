@@ -35,7 +35,12 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyCollectionOf;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.noMoreInteractions;
 
 public class FacebookAuthProviderTest {
@@ -139,9 +144,9 @@ public class FacebookAuthProviderTest {
     }
 
     @Test
-    public void shouldLogoutBeforeLoginByDefault() throws Exception {
+    public void shouldNotLogoutBeforeLoginByDefault() throws Exception {
         provider.start(activity, callback, PERMISSION_REQ_CODE, AUTH_REQ_CODE);
-        verify(apiHelper).logout();
+        verify(apiHelper, never()).logout();
     }
 
     @Test
