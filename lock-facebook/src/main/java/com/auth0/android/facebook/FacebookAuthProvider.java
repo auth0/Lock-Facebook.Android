@@ -47,7 +47,7 @@ public class FacebookAuthProvider extends AuthProvider {
         this.connectionName = connectionName;
         this.facebook = facebook;
         this.permissions = Collections.singleton("public_profile");
-        this.rememberLastLogin = false;
+        this.rememberLastLogin = true;
     }
 
     /**
@@ -69,7 +69,8 @@ public class FacebookAuthProvider extends AuthProvider {
     }
 
     /**
-     * Whether it should clear the session and logout any existing user before trying to authenticate or not. By default is false
+     * Whether it should remember the last account used to log in or it should ask the user to input his credentials.
+     * By default it's true, meaning it will not ask for the user account if he's already logged in.
      *
      * @param rememberLastLogin flag to remember last Facebook login
      */
