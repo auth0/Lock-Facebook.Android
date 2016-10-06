@@ -1,4 +1,10 @@
 # Change Log
+## [3.0.1](https://github.com/auth0/Lock-Facebook.Android/tree/3.0.1)
+[Full Changelog](https://github.com/auth0/Lock-Facebook.Android/compare/3.0.0...3.0.1)
+
+**Fixed**
+- Fix bug on logout when SDK was not initialized yet [\#13](https://github.com/auth0/Lock-Facebook.Android/pull/13) ([lbalmaceda](https://github.com/lbalmaceda))
+
 ## [3.0.0](https://github.com/auth0/Lock-Facebook.Android/tree/3.0.0)
 [Full Changelog](https://github.com/auth0/Lock-Facebook.Android/compare/2.3.0...3.0.0)
 
