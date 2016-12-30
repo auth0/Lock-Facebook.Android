@@ -41,6 +41,7 @@ public class PhotosActivity extends AppCompatActivity {
     private PhotosAdapter adapter;
     private List<String> photos;
     private ProgressBar progressBar;
+    private Button loginButton;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -56,7 +57,7 @@ public class PhotosActivity extends AppCompatActivity {
                 .closable(true)
                 .build(this);
 
-        Button loginButton = (Button) findViewById(R.id.loginButton);
+        loginButton = (Button) findViewById(R.id.loginButton);
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -128,6 +129,7 @@ public class PhotosActivity extends AppCompatActivity {
         public void onAuthentication(Credentials credentials) {
             Log.i(TAG, "Auth ok! User has given us all facebook requested permissions.");
             progressBar.setVisibility(View.VISIBLE);
+            loginButton.setEnabled(false);
             fetchAlbums();
         }
 
