@@ -152,6 +152,7 @@ public class FacebookAuthProvider extends AuthProvider {
     private void requestAuth0Token(String token) {
         final AuthCallback callback = getSafeCallback();
         auth0.loginWithOAuthAccessToken(token, connectionName)
+                .addAuthenticationParameters(getParameters())
                 .start(new AuthenticationCallback<Credentials>() {
                     @Override
                     public void onSuccess(Credentials credentials) {

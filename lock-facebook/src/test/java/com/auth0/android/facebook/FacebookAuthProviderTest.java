@@ -26,15 +26,18 @@ import org.mockito.stubbing.Answer;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.hamcrest.collection.IsMapContaining.hasEntry;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyCollectionOf;
+import static org.mockito.Matchers.anyMap;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.eq;
@@ -71,6 +74,7 @@ public class FacebookAuthProviderTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         provider = new FacebookAuthProvider("facebook", client, apiHelper);
+        when(request.addAuthenticationParameters(anyMap())).thenReturn(request);
     }
 
     @Test
@@ -201,6 +205,7 @@ public class FacebookAuthProviderTest {
     @Test
     public void shouldCallAuth0OAuthEndpointWhenFacebookTokenIsReceived() throws Exception {
         when(client.loginWithOAuthAccessToken(TOKEN, CONNECTION_NAME)).thenReturn(request);
+        provider.setParameters(Collections.<String, Object>singletonMap("key", "value"));
         doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
@@ -211,12 +216,17 @@ public class FacebookAuthProviderTest {
         }).when(apiHelper).login(eq(activity), eq(AUTH_REQ_CODE), anyCollectionOf(String.class), any(FacebookApi.Callback.class));
         provider.start(activity, callback, PERMISSION_REQ_CODE, AUTH_REQ_CODE);
 
+        ArgumentCaptor<Map> mapCaptor = ArgumentCaptor.forClass(Map.class);
         verify(client).loginWithOAuthAccessToken(TOKEN, CONNECTION_NAME);
+        verify(request).addAuthenticationParameters(mapCaptor.capture());
+        assertThat(mapCaptor.getValue(), is(notNullValue()));
+        assertThat((Map<String, Object>) mapCaptor.getValue(), is(hasEntry("key", (Object) "value")));
     }
 
     @Test
     public void shouldCallAuth0OAuthEndpointWithCustomConnectionNameWhenGoogleTokenIsReceived() throws Exception {
         provider = new FacebookAuthProvider("my-custom-connection", client, apiHelper);
+        provider.setParameters(Collections.<String, Object>singletonMap("key", "value"));
         doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
@@ -228,7 +238,11 @@ public class FacebookAuthProviderTest {
         when(client.loginWithOAuthAccessToken(TOKEN, "my-custom-connection")).thenReturn(request);
         provider.start(activity, callback, PERMISSION_REQ_CODE, AUTH_REQ_CODE);
 
+        ArgumentCaptor<Map> mapCaptor = ArgumentCaptor.forClass(Map.class);
         verify(client).loginWithOAuthAccessToken(TOKEN, "my-custom-connection");
+        verify(request).addAuthenticationParameters(mapCaptor.capture());
+        assertThat(mapCaptor.getValue(), is(notNullValue()));
+        assertThat((Map<String, Object>) mapCaptor.getValue(), is(hasEntry("key", (Object) "value")));
     }
 
     @Test
