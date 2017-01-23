@@ -1,4 +1,10 @@
 # Change Log
+
+## [3.1.0](https://github.com/auth0/Lock-Facebook.Android/tree/3.1.0) (2017-01-23)
+[Full Changelog](https://github.com/auth0/Lock-Facebook.Android/compare/3.0.1...3.1.0)
+
+**Added**
+- Support authentication parameters [\#15](https://github.com/auth0/Lock-Facebook.Android/pull/15) ([lbalmaceda](https://github.com/lbalmaceda))
 ## [3.0.1](https://github.com/auth0/Lock-Facebook.Android/tree/3.0.1)
 [Full Changelog](https://github.com/auth0/Lock-Facebook.Android/compare/3.0.0...3.0.1)
 
