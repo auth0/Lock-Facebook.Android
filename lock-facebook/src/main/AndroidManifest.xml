@@ -26,6 +26,8 @@
     package="com.auth0.android.facebook">
 
     <application>
-        <activity android:name=".FacebookSignInDelegateActivity" />
+        <activity
+            android:name=".FacebookSignInDelegateActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
     </application>
 </manifest>

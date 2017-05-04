@@ -2,7 +2,6 @@ package com.auth0.android.facebook;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.util.Log;
 
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -53,11 +52,7 @@ class FacebookApi {
     }
 
     public boolean finishLogin(int requestCode, int resultCode, Intent intent) {
-        if (intent.hasExtra(PROVIDER_REQUEST_CODE_EXTRA)) {
-            return callbackManager.onActivityResult(intent.getIntExtra(PROVIDER_REQUEST_CODE_EXTRA, requestCode), resultCode, intent);
-        }
-        Log.w(TAG, "The received Request Code is invalid and the result will be ignored.");
-        return false;
+        return callbackManager.onActivityResult(intent.getIntExtra(PROVIDER_REQUEST_CODE_EXTRA, requestCode), resultCode, intent);
     }
 
     interface Callback {

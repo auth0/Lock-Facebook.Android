@@ -1,17 +1,16 @@
 package com.auth0.android.facebook;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 
-import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
 
 import java.util.Collections;
 import java.util.List;
 
-public class FacebookSignInDelegateActivity extends AppCompatActivity {
+public class FacebookSignInDelegateActivity extends Activity {
 
     public static final String FACEBOOK_PERMISSIONS_EXTRA = "com.auth0.android.facebook.FACEBOOK_PERMISSIONS";
     public static final String PROVIDER_REQUEST_CODE_EXTRA = "com.auth0.android.facebook.PROVIDER_REQUEST_CODE";
@@ -28,12 +27,9 @@ public class FacebookSignInDelegateActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (FacebookSdk.isFacebookRequestCode(requestCode)) {
-            data.putExtra(PROVIDER_REQUEST_CODE_EXTRA, requestCode);
-            setResult(resultCode, data);
-            finish();
-            return;
-        }
         super.onActivityResult(requestCode, resultCode, data);
+        data.putExtra(PROVIDER_REQUEST_CODE_EXTRA, requestCode);
+        setResult(resultCode, data);
+        finish();
     }
 }
