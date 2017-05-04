@@ -3,17 +3,21 @@ package com.auth0.android.facebook;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.facebook.CallbackManager;
 import com.facebook.login.LoginManager;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 public class FacebookSignInDelegateActivity extends Activity {
 
-    public static final String FACEBOOK_PERMISSIONS_EXTRA = "com.auth0.android.facebook.FACEBOOK_PERMISSIONS";
-    public static final String PROVIDER_REQUEST_CODE_EXTRA = "com.auth0.android.facebook.PROVIDER_REQUEST_CODE";
+    private static final String FACEBOOK_PERMISSIONS_EXTRA = "com.auth0.android.facebook.FACEBOOK_PERMISSIONS";
+    private static final String PROVIDER_REQUEST_CODE_EXTRA = "com.auth0.android.facebook.PROVIDER_REQUEST_CODE";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -31,5 +35,16 @@ public class FacebookSignInDelegateActivity extends Activity {
         data.putExtra(PROVIDER_REQUEST_CODE_EXTRA, requestCode);
         setResult(resultCode, data);
         finish();
+    }
+
+    static void signIn(@NonNull Activity activity, int requestCode, @NonNull Collection<String> permissions) {
+        Intent delegateIntent = new Intent(activity, FacebookSignInDelegateActivity.class);
+        delegateIntent.putStringArrayListExtra(FACEBOOK_PERMISSIONS_EXTRA, new ArrayList<>(permissions));
+        activity.startActivityForResult(delegateIntent, requestCode);
+    }
+
+    static boolean finishSignIn(@NonNull CallbackManager callbackManager, int requestCode, int resultCode, @NonNull Intent intent) {
+        int reqCode = intent.getIntExtra(PROVIDER_REQUEST_CODE_EXTRA, requestCode);
+        return callbackManager.onActivityResult(reqCode, resultCode, intent);
     }
 }

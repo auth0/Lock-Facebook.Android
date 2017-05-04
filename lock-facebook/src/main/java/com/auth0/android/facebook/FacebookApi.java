@@ -9,11 +9,7 @@ import com.facebook.FacebookException;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 
-import java.util.ArrayList;
 import java.util.Collection;
-
-import static com.auth0.android.facebook.FacebookSignInDelegateActivity.FACEBOOK_PERMISSIONS_EXTRA;
-import static com.auth0.android.facebook.FacebookSignInDelegateActivity.PROVIDER_REQUEST_CODE_EXTRA;
 
 class FacebookApi {
 
@@ -42,9 +38,7 @@ class FacebookApi {
             }
         });
 
-        Intent delegateIntent = new Intent(activity, FacebookSignInDelegateActivity.class);
-        delegateIntent.putStringArrayListExtra(FACEBOOK_PERMISSIONS_EXTRA, new ArrayList<>(permissions));
-        activity.startActivityForResult(delegateIntent, requestCode);
+        FacebookSignInDelegateActivity.signIn(activity, requestCode, permissions);
     }
 
     public void logout() {
@@ -52,7 +46,7 @@ class FacebookApi {
     }
 
     public boolean finishLogin(int requestCode, int resultCode, Intent intent) {
-        return callbackManager.onActivityResult(intent.getIntExtra(PROVIDER_REQUEST_CODE_EXTRA, requestCode), resultCode, intent);
+        return FacebookSignInDelegateActivity.finishSignIn(callbackManager, requestCode, resultCode, intent);
     }
 
     interface Callback {
