@@ -12,9 +12,9 @@ Lock-Facebook helps you integrate native Login with [Facebook Android SDK](https
 
 # Deprecation notice
 
-This package relies on a token endpoint that is now considered deprecated. If your Auth0 client was created after Jun 8th 2017 you won't be able to use this package. 
+This package relies on a token endpoint that is now considered deprecated. **If your Auth0 client was created after Jun 8th 2017 you won't be able to use this package**. This repository is left for reference purposes.
 
-We recommend using browser-based flows to authenticate users. You can do that using then [auth0.android](https://github.com/auth0/auth0.android#authentication-with-hosted-login-page) package's `WebAuthProvider` class, as explained in [this document](https://auth0.com/docs/libraries/auth0-android).
+**We recommend using browser-based flows to authenticate users**. You can do that using the [auth0.android](https://github.com/auth0/auth0.android#authentication-with-hosted-login-page) package's `WebAuthProvider` class, as explained in [this document](https://auth0.com/docs/libraries/auth0-android).
 
 ## Requirements
 
