@@ -60,10 +60,9 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:25.1.0'
-    compile 'com.auth0.android:auth0:1.6.0'
-    compile 'com.facebook.android:facebook-android-sdk:4.18.0'
-
+    compile 'com.android.support:appcompat-v7:25.0.0'
+    compile 'com.auth0.android:auth0:1.8.0'
+    compile 'com.facebook.android:facebook-android-sdk:4.22.0'
     testCompile('junit:junit:4.11') {
         exclude module: 'hamcrest-core'
     }

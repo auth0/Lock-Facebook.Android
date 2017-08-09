@@ -22,4 +22,12 @@
   ~ THE SOFTWARE.
   -->
 
-<manifest package="com.auth0.android.facebook" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.auth0.android.facebook">
+
+    <application>
+        <activity
+            android:name=".FacebookSignInDelegateActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+    </application>
+</manifest>
